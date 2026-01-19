@@ -18,7 +18,7 @@ class AuthenticationController extends Controller
         $inputs['password'] = Hash::make($inputs['password']);
 
         $user = User::create($inputs);
-        $token = Auth::attempt($request->safe()->only(['email', 'password']));
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message'      => 'User successfully registered',
@@ -33,7 +33,7 @@ class AuthenticationController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $token = Auth::user()->createToken('API Token')->plainTextToken;
+        $token = Auth::user()->createToken('auth_token')->plainTextToken;
         return response()->json(['token' => $token]);
     }
 

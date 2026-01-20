@@ -30,7 +30,7 @@ class GeneralManagerSeeder extends Seeder
         ];
 
         $admin = User::create($general_manager_attributes);
-        $admin_role = Role::create(['guard_name' => 'api','name' => 'General-Manager']);
+        $admin_role = Role::create(['guard_name' => 'web','name' => 'General-Manager']);
         $admin->assignRole($admin_role);
 
     }

@@ -16,8 +16,6 @@ class PermissionsSeeder extends Seeder
      */
     public function run()
     {
-        // Reset cached roles and permissions
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
         $permissions = [
             'edit-profile',
             'view-profile',
@@ -73,7 +71,10 @@ class PermissionsSeeder extends Seeder
             Permission::create(['name' => $permission]);
         }
 
-       $client = Role::create(['guard_name' => 'api','name' => 'client']);
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+       $client = Role::create(['guard_name' => 'web','name' => 'client']);
        $client->syncPermissions([
             'edit-profile',
             'view-profile',
@@ -84,7 +85,7 @@ class PermissionsSeeder extends Seeder
             'view-all-reservations',
        ]);
 
-       $supervisor =  Role::create(['guard_name' => 'api','name' => 'admin']);
+       $supervisor =  Role::create(['guard_name' => 'web','name' => 'admin']);
        $supervisor->syncPermissions([
             'edit-user',
             'view-user',
@@ -121,5 +122,5 @@ class PermissionsSeeder extends Seeder
             'view-reservation',
             'view-all-reservations',
          ]);
-    }
+        }
 }

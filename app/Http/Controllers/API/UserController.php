@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Collections\UsersCollection;
+use App\Http\Requests\User\StoreUserRequest;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class UserController extends Controller
@@ -14,12 +16,19 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         return UserResource::collection(UsersCollection::collection($request))->collection;
-
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        //
+        $this->authorize('create', User::class);
+        $inputs = $request->validated();
+        $inputs['password'] = Hash::make($inputs['password']);
+        $inputs['role'] = "admin";
+
+        $user = User::create($inputs);
+        $user->assignRole($inputs['role']);
+
+        return new UserResource($user);
     }
 
     public function show(User $user)

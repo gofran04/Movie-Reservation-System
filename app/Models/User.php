@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, SoftDeletes, HasFactory, Notifiable;
+    use HasApiTokens, SoftDeletes, HasRoles, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -36,6 +37,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    protected $guard_name = 'web';
 
     /**
      * Get the attributes that should be cast.

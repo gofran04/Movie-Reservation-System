@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Collections\UsersCollection;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -37,9 +38,13 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        $this->authorize('update', User::class);
+    
+        $user->update($request->validated());
+
+        return (new UserResource($user->refresh()));    
     }
 
     public function destroy(string $id)

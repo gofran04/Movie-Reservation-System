@@ -34,21 +34,25 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $this->authorize('view', User::class);
+        $this->authorize('view', $user);
         return new UserResource($user);
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $this->authorize('update', User::class);
+        $this->authorize('update', $user);
     
         $user->update($request->validated());
 
         return (new UserResource($user->refresh()));    
     }
 
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+        $this->authorize('delete', $user);
+        $user->delete();
+        return response()->json([
+            'message' => ('User successfully deleted')
+        ]);    
     }
 }

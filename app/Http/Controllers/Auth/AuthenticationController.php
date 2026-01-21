@@ -18,6 +18,7 @@ class AuthenticationController extends Controller
         $inputs['password'] = Hash::make($inputs['password']);
 
         $user = User::create($inputs);
+        $user->assignRole('client');
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

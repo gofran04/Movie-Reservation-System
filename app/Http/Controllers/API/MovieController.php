@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Movie\StoreMovieRequest;
 use App\Http\Resources\MovieResource;
+Use App\Collections\MoviesCollection;
 
 class MovieController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $this->authorize('viewAny',Movie::class);
+        return MovieResource::collection(MoviesCollection::collection($request))->collection;
     }
 
     public function store(StoreMovieRequest $request)

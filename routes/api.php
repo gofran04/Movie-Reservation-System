@@ -10,5 +10,7 @@ Route::post('/register', [AuthenticationController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthenticationController::class, 'logout']);
+    Route::post('/users/{user}/suspend', [UserController::class, 'suspend']);
+    Route::post('/users/{user}/activate', [UserController::class, 'activate']);
     Route::resource('users', UserController::class);
 });

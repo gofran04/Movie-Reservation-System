@@ -24,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'status',
         'role',
         'password',
     ];
@@ -38,7 +39,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $guard_name = 'web';
+    protected $guard_name = 'sanctum';
 
     /**
      * Get the attributes that should be cast.

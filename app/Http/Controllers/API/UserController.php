@@ -55,4 +55,22 @@ class UserController extends Controller
             'message' => ('User successfully deleted')
         ]);    
     }
+
+    public function suspend(User $user)
+    {
+        $this->authorize('suspend', $user);
+
+        $user->update(['status' => 'suspended']);
+
+        return response()->json(['message' => 'User suspended']);
+    }
+
+    public function activate(User $user)
+    {
+        $this->authorize('activate', $user);
+
+        $user->update(['status' => 'active']);
+
+        return response()->json(['message' => 'User activated']);
+    }
 }

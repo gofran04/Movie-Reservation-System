@@ -32,6 +32,9 @@ class PermissionsSeeder extends Seeder
             'view-all-users',
             'delete-user',
 
+            'suspend-user',
+            'activate-user',
+
             'view-cinema',
             'edit-cinema',
 
@@ -74,7 +77,7 @@ class PermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-       $client = Role::create(['guard_name' => 'web','name' => 'client']);
+       $client = Role::create(['guard_name' => 'sanctum','name' => 'client']);
        $client->syncPermissions([
             'edit-profile',
             'view-profile',
@@ -85,7 +88,7 @@ class PermissionsSeeder extends Seeder
             'view-all-reservations',
        ]);
 
-       $supervisor =  Role::create(['guard_name' => 'web','name' => 'admin']);
+       $supervisor =  Role::create(['guard_name' => 'sanctum','name' => 'admin']);
        $supervisor->syncPermissions([
             'edit-user',
             'view-user',

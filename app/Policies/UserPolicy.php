@@ -41,6 +41,18 @@ class UserPolicy
         return $authUser->can('delete-user');
     }
 
+    public function suspend(User $authUser, User $targetUser): bool
+    {
+        return $authUser->can('suspend-user') && $targetUser->status !== 'suspended' 
+        && $targetUser->id !== $authUser->id && $targetUser->hasRole('admin');
+    }
+
+    public function activate(User $authUser, User $targetUser): bool
+    {
+        return $authUser->can('activate-user') && $targetUser->status !== 'active' 
+        && $targetUser->id !== $authUser->id &&  $targetUser->hasRole('admin');
+    }
+
     /**
      * Optional lifecycle actions
      */

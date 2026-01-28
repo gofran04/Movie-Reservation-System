@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -41,14 +42,20 @@ class UserPolicy
         return $authUser->can('delete-user');
     }
 
-    public function suspend(User $authUser, User $targetUser): bool
+    public function suspend(User $authUser, User $targetUser)
     {
-        return $authUser->can('suspend-user') && $targetUser->status !== 'suspended' 
+        if ($targetUser->status === 'suspended') {
+            return Response::deny('User is already suspended.');
+        }
+        return $authUser->can('suspend-user')
         && $targetUser->id !== $authUser->id && $targetUser->hasRole('admin');
     }
 
-    public function activate(User $authUser, User $targetUser): bool
+    public function activate(User $authUser, User $targetUser)
     {
+        if ($targetUser->status === 'suspended') {
+            return Response::deny('User is already activated.');
+        }
         return $authUser->can('activate-user') && $targetUser->status !== 'active' 
         && $targetUser->id !== $authUser->id &&  $targetUser->hasRole('admin');
     }

@@ -27,7 +27,8 @@ class MovieController extends Controller
 
     public function show(Movie $movie)
     {
-        //
+        $this->authorize('view', $movie);
+        return new MovieResource($movie);
     }
 
     public function update(Request $request, Movie $movie)

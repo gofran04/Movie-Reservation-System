@@ -19,9 +19,9 @@ class MoviePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Movie $movie): bool
+    public function view(User $authUser, Movie $movie): bool
     {
-        return false;
+        return $authUser->can('view-movie');
     }
 
     /**

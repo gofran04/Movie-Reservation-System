@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -29,9 +30,11 @@ class GeneralManagerSeeder extends Seeder
 
         ];
 
-        $admin = User::create($general_manager_attributes);
-        $admin_role = Role::create(['guard_name' => 'web','name' => 'General-Manager']);
-        $admin->assignRole($admin_role);
+        $generalManagerUser = User::create($general_manager_attributes);
+        $generalManagerRole = Role::create(['guard_name' => 'sanctum','name' => 'General-Manager']);
+        $permissions = Permission::where('guard_name', 'sanctum')->get();
+        $generalManagerRole->syncPermissions($permissions);        
+        $generalManagerUser->assignRole($generalManagerRole);
 
     }
 }

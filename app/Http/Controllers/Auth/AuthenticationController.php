@@ -30,11 +30,15 @@ class AuthenticationController extends Controller
 
     public function login(LoginRequest $request)
     {
-        if (!Auth::attempt($request->safe()->only('email', 'password'))) {
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $token = Auth::user()->createToken('auth_token')->plainTextToken;
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['token' => $token]);
     }
 

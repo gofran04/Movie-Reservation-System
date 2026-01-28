@@ -6,6 +6,7 @@ use App\Models\Movie;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Movie\StoreMovieRequest;
+use App\Http\Requests\Movie\UpdateMovieRequest;
 use App\Http\Resources\MovieResource;
 Use App\Collections\MoviesCollection;
 
@@ -31,9 +32,12 @@ class MovieController extends Controller
         return new MovieResource($movie);
     }
 
-    public function update(Request $request, Movie $movie)
+    public function update(UpdateMovieRequest $request, Movie $movie)
     {
-        //
+        $this->authorize('update', $movie);
+        $movie->update($request->validated());
+
+        return new MovieResource($movie->refresh());
     }
 
     public function destroy(Movie $movie)

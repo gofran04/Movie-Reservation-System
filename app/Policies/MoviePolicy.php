@@ -35,9 +35,9 @@ class MoviePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Movie $movie): bool
+    public function update(User $authUser, Movie $movie): bool
     {
-        return false;
+        return $authUser->can('edit-movie');
     }
 
     /**

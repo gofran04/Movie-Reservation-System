@@ -43,9 +43,9 @@ class MoviePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Movie $movie): bool
+    public function delete(User $authUser, Movie $movie): bool
     {
-        return false;
+        return $authUser->can('delete-movie');
     }
 
     /**

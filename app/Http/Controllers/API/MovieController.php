@@ -41,6 +41,13 @@ class MovieController extends Controller
         $this->authorize('update', $movie);
         $movie->update($request->validated());
 
+        if ($request->hasFile('poster_file')) {
+            $movie
+                ->clearMediaCollection('poster')
+                ->addMediaFromRequest('poster_file')
+                ->toMediaCollection('poster');
+        }
+
         return new MovieResource($movie->refresh());
     }
 

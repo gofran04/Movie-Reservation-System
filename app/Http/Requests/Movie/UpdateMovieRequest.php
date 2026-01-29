@@ -28,6 +28,7 @@ class UpdateMovieRequest extends FormRequest
             'rating'            => ['nullable','numeric','min:0','max:10'],
             'duration_minutes'  => ['required', 'integer', 'min:1', 'max:500'],
             'status'            => ['required', 'in:active,inactive'],
+            'poster_file'       => ['nullable', 'image', 'max:2048'], // max 2MB
         ];
     }
 }

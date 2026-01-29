@@ -55,6 +55,7 @@ class MovieController extends Controller
     {
         $this->authorize('delete',$movie);
         $movie->delete();
+        $movie->clearMediaCollection('poster');
 
         return response()->json([
             'message' => ('Movie successfully deleted')

@@ -27,6 +27,7 @@ class StoreMovieRequest extends FormRequest
             'release_year'      => ['required', 'integer','min:1888','max:'. now()->year], // 1888 is considered the birth year of cinema.
             'rating'            => ['nullable','numeric','min:0','max:10'],
             'duration_minutes'  => ['required', 'integer', 'min:1', 'max:500'],
+            'poster'            => ['nullable', 'image', 'max:2048'], // max 2MB
         ];
     }
 }

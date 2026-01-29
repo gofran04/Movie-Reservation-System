@@ -23,6 +23,10 @@ class MovieController extends Controller
         $this->authorize('create', Movie::class);
         $movie = Movie::create($request->validated());
 
+        if ($request->hasFile('poster')) {
+            $movie->addMediaFromRequest('poster')->toMediaCollection('poster');
+        }
+
         return new MovieResource($movie);
     }
 

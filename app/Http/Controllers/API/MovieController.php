@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Movie\StoreMovieRequest;
 use App\Http\Requests\Movie\UpdateMovieRequest;
 use App\Http\Resources\MovieResource;
-Use App\Collections\MoviesCollection;
+use App\Collections\MoviesCollection;
 
 class MovieController extends Controller
 {
@@ -54,8 +54,8 @@ class MovieController extends Controller
     public function destroy(Movie $movie)
     {
         $this->authorize('delete',$movie);
-        $movie->delete();
         $movie->clearMediaCollection('poster');
+        $movie->delete();
 
         return response()->json([
             'message' => ('Movie successfully deleted')

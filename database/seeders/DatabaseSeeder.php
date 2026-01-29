@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionsSeeder::class,
             GeneralManagerSeeder::class,
+            CinemaSeeder::class,
         ]);
     }
 }

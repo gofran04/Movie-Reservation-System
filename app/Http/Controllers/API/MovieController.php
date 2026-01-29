@@ -41,10 +41,10 @@ class MovieController extends Controller
         $this->authorize('update', $movie);
         $movie->update($request->validated());
 
-        if ($request->hasFile('poster_file')) {
+        if ($request->hasFile('poster')) {
             $movie
                 ->clearMediaCollection('poster')
-                ->addMediaFromRequest('poster_file')
+                ->addMediaFromRequest('poster')
                 ->toMediaCollection('poster');
         }
 

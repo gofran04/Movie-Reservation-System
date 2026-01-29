@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Movie\StoreMovieRequest;
 use App\Http\Requests\Movie\UpdateMovieRequest;
 use App\Http\Resources\MovieResource;
-Use App\Collections\MoviesCollection;
+use App\Collections\MoviesCollection;
 
 class MovieController extends Controller
 {
@@ -22,6 +22,10 @@ class MovieController extends Controller
     {
         $this->authorize('create', Movie::class);
         $movie = Movie::create($request->validated());
+
+        if ($request->hasFile('poster')) {
+            $movie->addMediaFromRequest('poster')->toMediaCollection('poster');
+        }
 
         return new MovieResource($movie);
     }
@@ -37,12 +41,20 @@ class MovieController extends Controller
         $this->authorize('update', $movie);
         $movie->update($request->validated());
 
+        if ($request->hasFile('poster')) {
+            $movie
+                ->clearMediaCollection('poster')
+                ->addMediaFromRequest('poster')
+                ->toMediaCollection('poster');
+        }
+
         return new MovieResource($movie->refresh());
     }
 
     public function destroy(Movie $movie)
     {
         $this->authorize('delete',$movie);
+        $movie->clearMediaCollection('poster');
         $movie->delete();
 
         return response()->json([

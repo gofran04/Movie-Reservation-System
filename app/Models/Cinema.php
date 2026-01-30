@@ -10,4 +10,9 @@ class Cinema extends Model
         'name',
         'location',
     ];
+
+    public function halls()
+    {
+        return $this->hasMany(Hall::class);
+    }
 }

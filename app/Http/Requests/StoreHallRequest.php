@@ -11,7 +11,7 @@ class StoreHallRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreHallRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name'          => ['required', 'string', 'max:255'],
+            'cinema_id'     => ['required', 'exists:cinemas,id'],
+            'total_rows'    => ['required', 'integer', 'min:1'],
+            'total_columns' => ['required', 'integer', 'min:1'],
+            'status'        => ['required', 'in:active,inactive'],
         ];
     }
 }

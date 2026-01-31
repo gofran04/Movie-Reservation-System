@@ -42,9 +42,4 @@ class HallController extends Controller
         
         return new HallResource($hall->refresh());
     }
-
-    public function destroy(Hall $hall)
-    {
-        //
-    }
 }

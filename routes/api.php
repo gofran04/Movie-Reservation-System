@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('movies', MovieController::class);
     Route::resource('cinemas', CinemaController::class)->only(['show', 'update']);
-    Route::resource('halls', HallController::class);
+    Route::resource('halls', HallController::class)->except(['destroy']);
     // List all seats of a hall
     Route::get('/halls/{hall}/seats', [SeatController::class, 'index']);
     // View a single seat (by seat id)

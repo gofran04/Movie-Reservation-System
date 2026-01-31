@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Hall;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +23,7 @@ class UpdateHallRequest extends FormRequest
     {
         return [
             'name'          => ['sometimes','string','max:255'],
-            'cinema_id'     => ['sometimes','exists:cinemas,id'],   
+            'cinema_id'     => ['prohibited'],   // cinema_id should not be changed
             'status'        => ['sometimes','in:active,inactive'],
             'total_rows'    => ['prohibited'],
             'total_columns' => ['prohibited'],

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('seats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hall_id')->constrained('halls')->onDelete('cascade');
-            $table->integer('row_number');
+            $table->char('row_number', 3); // Assuming rows can be labeled with up to 3 characters (e.g., 'A', 'AA', 'AAA')
             $table->integer('column_number');
             $table->enum('type', ['regular', 'vip', 'accessible'])->default('regular');
             $table->enum('status', ['available', 'out_of_service'])->default('available');

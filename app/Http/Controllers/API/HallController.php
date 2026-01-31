@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreHallRequest;
 use App\Http\Requests\UpdateHallRequest;
 use App\Http\Resources\HallResource;
+use App\Services\CreateSeatService;
 use App\Models\Hall;
 
 class HallController extends Controller
@@ -18,6 +19,8 @@ class HallController extends Controller
     public function store(StoreHallRequest $request)
     {
         $hall = Hall::create($request->validated());
+        CreateSeatService::createSeatsForHall($hall);
+        
         return new HallResource($hall);
     }
 

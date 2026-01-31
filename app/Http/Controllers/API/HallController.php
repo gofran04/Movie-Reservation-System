@@ -18,6 +18,7 @@ class HallController extends Controller
 
     public function store(StoreHallRequest $request)
     {
+        $this->authorize('create', Hall::class);
         $hall = Hall::create($request->validated());
         CreateSeatService::createSeatsForHall($hall);
         

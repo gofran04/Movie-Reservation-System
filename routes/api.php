@@ -22,4 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('halls', HallController::class);
     // List all seats of a hall
     Route::get('/halls/{hall}/seats', [SeatController::class, 'index']);
+    // View a single seat (by seat id)
+    Route::get('/seats/{seat}', [SeatController::class, 'show']);
 });

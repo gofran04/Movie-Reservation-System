@@ -14,7 +14,14 @@ class SeatController extends Controller
     public function index(Request $request,Hall $hall)
     {
         $this->authorize('viewAny',Seat::class);
-        
+
         return SeatResource::collection( SeatsCollection::collection($request)->where('hall_id', $hall->id))->collection;
+    }
+
+    public function show(Seat $seat)
+    {
+        $this->authorize('view', $seat);
+
+        return new SeatResource($seat);
     }
 }

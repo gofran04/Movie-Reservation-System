@@ -19,9 +19,9 @@ class SeatPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Seat $seat): bool
+    public function view(User $authUser, Seat $seat): bool
     {
-        return false;
+        return $authUser->can('view-seat', $seat);
     }
 
     /**

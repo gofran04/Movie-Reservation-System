@@ -35,9 +35,9 @@ class HallPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Hall $hall): bool
+    public function update(User $authUser, Hall $hall): bool
     {
-        return false;
+        return $authUser->can('edit-hall');
     }
 
     /**

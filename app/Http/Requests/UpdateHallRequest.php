@@ -11,7 +11,7 @@ class UpdateHallRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class UpdateHallRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name'          => ['sometimes','string','max:255'],
+            'cinema_id'     => ['sometimes','exists:cinemas,id'],   
+            'status'        => ['sometimes','in:active,inactive'],
+            'total_rows'    => ['prohibited'],
+            'total_columns' => ['prohibited'],
         ];
     }
 }

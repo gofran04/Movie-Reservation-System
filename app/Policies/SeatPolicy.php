@@ -25,27 +25,11 @@ class SeatPolicy
     }
 
     /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
      * Determine whether the user can update the model.
      */
     public function update(User $authUser, Seat $seat): bool
     {
         return $authUser->can('edit-seat', $seat);
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Seat $seat): bool
-    {
-        return false;
     }
 
     /**

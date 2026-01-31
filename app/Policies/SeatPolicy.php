@@ -35,9 +35,9 @@ class SeatPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Seat $seat): bool
+    public function update(User $authUser, Seat $seat): bool
     {
-        return false;
+        return $authUser->can('edit-seat', $seat);
     }
 
     /**

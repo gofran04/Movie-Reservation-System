@@ -24,4 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/halls/{hall}/seats', [SeatController::class, 'index']);
     // View a single seat (by seat id)
     Route::get('/seats/{seat}', [SeatController::class, 'show']);
+    // Update a seat (type / status)
+    Route::put('/seats/{seat}', [SeatController::class, 'update']);
 });

@@ -46,7 +46,6 @@ class PermissionsSeeder extends Seeder
 
             'view-all-seats',
             'view-seat',
-            'create-seat',
             'edit-seat',
             'delete-seat',
 
@@ -105,7 +104,6 @@ class PermissionsSeeder extends Seeder
 
             'view-all-seats',
             'view-seat',
-            'create-seat',
             'edit-seat',
             'delete-seat',
 

@@ -30,7 +30,9 @@ class HallController extends Controller
 
     public function show(Hall $hall)
     {
-        //
+        $this->authorize('view', $hall);
+        
+        return new HallResource($hall);
     }
 
     public function update(UpdateHallRequest $request, Hall $hall)

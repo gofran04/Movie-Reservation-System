@@ -19,9 +19,9 @@ class HallPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Hall $hall): bool
+    public function view(User $authUser, Hall $hall): bool
     {
-        return false;
+        return $authUser->can('view-hall');
     }
 
     /**

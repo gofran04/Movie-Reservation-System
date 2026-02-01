@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Seat;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreHallRequest extends FormRequest
+class UpdateSeatRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,11 @@ class StoreHallRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required', 'string', 'max:255'],
-            'cinema_id'     => ['required', 'exists:cinemas,id'],
-            'total_rows'    => ['required', 'integer', 'min:1'],
-            'total_columns' => ['required', 'integer', 'min:1'],
-            'status'        => ['required', 'in:active,inactive'],
+            'hall_id'       => ['prohibited'], // the hall_id is immutable
+            'type'          => ['sometimes','in:regular,vip'],
+            'status'        => ['sometimes','in:available,out_of_service'],
+            'row_number'    => ['prohibited'],// the row_number is immutable
+            'column_number' => ['prohibited'],// the column_number is immutable
         ];
     }
 }

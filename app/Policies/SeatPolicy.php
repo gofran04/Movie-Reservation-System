@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Seat;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class SeatPolicy
+{
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $authUser): bool
+    {
+        return $authUser->can('view-all-seats');
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $authUser, Seat $seat): bool
+    {
+        return $authUser->can('view-seat', $seat);
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $authUser, Seat $seat): bool
+    {
+        return $authUser->can('edit-seat', $seat);
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Seat $seat): bool
+    {
+        return false;
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Seat $seat): bool
+    {
+        return false;
+    }
+}

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('hall_id')->constrained('halls')->onDelete('cascade');
             $table->char('row_number', 3); // Assuming rows can be labeled with up to 3 characters (e.g., 'A', 'AA', 'AAA')
             $table->integer('column_number');
-            $table->enum('type', ['regular', 'vip', 'accessible'])->default('regular');
+            $table->enum('type', ['regular', 'vip'])->default('regular');
             $table->enum('status', ['available', 'out_of_service'])->default('available');
             $table->timestamps();
         });

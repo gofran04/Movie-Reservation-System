@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreHallRequest;
-use App\Http\Requests\UpdateHallRequest;
+use App\Http\Requests\Hall\StoreHallRequest;
+use App\Http\Requests\Hall\UpdateHallRequest;
 use App\Http\Resources\HallResource;
 use App\Services\CreateSeatService;
 use App\Collections\HallsCollection;

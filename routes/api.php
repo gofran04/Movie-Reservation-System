@@ -6,6 +6,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\MovieController;
 use App\Http\Controllers\API\CinemaController;
 use App\Http\Controllers\API\HallController;
+use App\Http\Controllers\API\SeatController;
 use App\Models\Hall;
 
 Route::post('/login', [AuthenticationController::class, 'login']);
@@ -18,5 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('movies', MovieController::class);
     Route::resource('cinemas', CinemaController::class)->only(['show', 'update']);
-    Route::resource('halls', HallController::class);
+    Route::resource('halls', HallController::class)->except(['destroy']);
+    // List all seats of a hall
+    Route::get('/halls/{hall}/seats', [SeatController::class, 'index']);
+    // View a single seat (by seat id)
+    Route::get('/seats/{seat}', [SeatController::class, 'show']);
+    // Update a seat (type / status)
+    Route::put('/seats/{seat}', [SeatController::class, 'update']);
 });

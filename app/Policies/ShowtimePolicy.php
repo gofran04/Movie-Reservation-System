@@ -19,9 +19,9 @@ class ShowtimePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Showtime $showtime): bool
+    public function view(User $auhtUser, Showtime $showtime): bool
     {
-        return false;
+        return $auhtUser->can('view-showtime');
     }
 
     /**

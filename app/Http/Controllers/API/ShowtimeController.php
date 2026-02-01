@@ -36,7 +36,9 @@ class ShowtimeController extends Controller
 
     public function show(Showtime $showtime)
     {
-        //
+        $this->authorize('view', $showtime);
+
+        return new ShowtimeResource($showtime);
     }
 
     public function update(UpdateShowtimeRequest $request, Showtime $showtime)

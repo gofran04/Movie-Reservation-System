@@ -6,15 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Showtime\StoreShowtimeRequest;
 use App\Http\Requests\Showtime\UpdateShowtimeRequest;
 use App\Http\Resources\ShowtimeResource;
+use App\Collections\ShowtimesCollection;
 use App\Models\Showtime;
 use App\Models\Movie;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\Request;
 
 class ShowtimeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $this->authorize('viewAny', Showtime::class);
+
+        return ShowtimeResource::collection(ShowtimesCollection::collection($request))->collection;
     }
 
     public function store(StoreShowtimeRequest $request)

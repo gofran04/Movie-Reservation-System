@@ -36,4 +36,9 @@ class Movie extends Model implements HasMedia
             ->addMediaCollection('poster')
             ->singleFile(); // one poster per movie
     }
+
+    public function showtimes()
+    {
+        return $this->hasMany(Showtime::class);
+    }
 }

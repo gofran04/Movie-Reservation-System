@@ -8,7 +8,6 @@ use App\Http\Controllers\API\CinemaController;
 use App\Http\Controllers\API\HallController;
 use App\Http\Controllers\API\SeatController;
 use App\Http\Controllers\API\ShowtimeController;
-use App\Models\Hall;
 
 Route::post('/login', [AuthenticationController::class, 'login']);
 Route::post('/register', [AuthenticationController::class, 'register']);

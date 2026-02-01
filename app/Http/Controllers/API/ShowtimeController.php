@@ -19,6 +19,7 @@ class ShowtimeController extends Controller
 
     public function store(StoreShowtimeRequest $request)
     {
+        $this->authorize('create', Showtime::class);
         $inputs = $request->validated();
 
         $movie = Movie::findOrFail($inputs['movie_id']);

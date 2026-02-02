@@ -37,7 +37,7 @@ class ShowtimePolicy
      */
     public function update(User $user, Showtime $showtime): bool
     {
-        return false;
+        return $user->can('edit-showtime');
     }
 
     /**

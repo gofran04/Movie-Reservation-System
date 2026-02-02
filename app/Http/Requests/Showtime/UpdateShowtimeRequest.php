@@ -3,6 +3,10 @@
 namespace App\Http\Requests\Showtime;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
+use App\Models\Movie;
+use App\Models\Showtime;
+use Carbon\Carbon;
 
 class UpdateShowtimeRequest extends FormRequest
 {
@@ -11,7 +15,7 @@ class UpdateShowtimeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +26,61 @@ class UpdateShowtimeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'movie_id'   => ['required', 'exists:movies,id'],
+            'hall_id'    => ['required', 'exists:halls,id'],
+            'start_time' => ['required', 'date_format:Y-m-d H:i:s', 'after:now'],
         ];
+    }
+
+     /**
+     * Cross-field & business-rule validation.
+     *
+     * This method runs AFTER basic validation succeeds.
+     * We use it to prevent overlapping showtimes in the same hall.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+
+            // Extract validated inputs
+            $movieId   = $this->input('movie_id');
+            $hallId    = $this->input('hall_id');
+            $startTime = Carbon::parse($this->input('start_time'));
+
+            // Load the movie to determine its duration
+            $movie = Movie::find($movieId);
+
+            // Safety guard: if movie is missing, skip overlap check
+            // (exists rule already covers this, but this avoids crashes)
+            if (! $movie) {
+                return;
+            }
+
+            // Calculate the end time of the new showtime
+            $endTime = (clone $startTime)->addMinutes($movie->duration_minutes); // Create a copy of $startTime, then modify the copy —leave the original untouched
+
+            /**
+             * Overlap rule (core business logic):
+             *
+             * A showtime overlaps if:
+             *   existing.start_time < new.end_time
+             *   AND
+             *   existing.end_time   > new.start_time
+             *
+             * If ANY record satisfies this → scheduling conflict
+             */
+            $hasOverlap = Showtime::where('hall_id', $hallId)
+                ->where('start_time', '<', $endTime)
+                ->where('end_time', '>', $startTime)
+                ->exists();
+
+            // If an overlap is found, reject the request
+            if ($hasOverlap) {
+                $validator->errors()->add(
+                    'start_time',
+                    'This hall already has a showtime during the selected time range.'
+                );
+            }
+        });
     }
 }

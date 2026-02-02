@@ -43,7 +43,14 @@ class ShowtimeController extends Controller
 
     public function update(UpdateShowtimeRequest $request, Showtime $showtime)
     {
-        //
+        $this->authorize('update', $showtime);
+        $inputs = $request->validated();
+
+        $movie = Movie::findOrFail($inputs['movie_id']);
+        $inputs['end_time'] = Carbon::parse($inputs['start_time'])->addMinutes($movie->duration_minutes)->format('Y-m-d H:i:s');
+        $showtime->update($inputs);
+
+        return new ShowtimeResource($showtime->refresh());
     }
 
     public function destroy(Showtime $showtime)

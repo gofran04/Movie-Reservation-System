@@ -8,13 +8,16 @@ use App\Http\Requests\Reservation\StoreReservationRequest;
 use App\Http\Requests\Reservation\UpdateReservationRequest;
 use App\Http\Resources\ReservationResource;
 use App\Services\CreateReservationService;
+use App\Collections\ReservationsCollection;
 use App\Models\Reservation;
 
 class ReservationController extends Controller
 {
     public function index()
     {
-        //
+        $this->authorize('viewAny', Reservation::class);
+
+        return ReservationResource::collection(ReservationsCollection::collection(request()))->collection;
     }
 
     public function store(StoreReservationRequest $request)

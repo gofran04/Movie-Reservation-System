@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Reservation\StoreReservationRequest;
 use App\Http\Requests\Reservation\UpdateReservationRequest;
@@ -13,11 +14,11 @@ use App\Models\Reservation;
 
 class ReservationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Reservation::class);
 
-        return ReservationResource::collection(ReservationsCollection::collection(request())->where('user_id', Auth::id()));
+        return ReservationResource::collection(ReservationsCollection::collection(request(), auth()->user()))->collection;
     }
 
     public function store(StoreReservationRequest $request)

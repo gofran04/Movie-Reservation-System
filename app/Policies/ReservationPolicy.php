@@ -13,7 +13,13 @@ class ReservationPolicy
      */
     public function viewAny(User $authUser): bool
     {
-        return $authUser->can('view-all-reservations');
+        // Admins & general manager can see all
+        if ($authUser->can('view-all-reservations')) {
+            return true;
+        }
+
+        // clients can see their own list
+        return $authUser->can('view-reservation');
     }
 
     /**

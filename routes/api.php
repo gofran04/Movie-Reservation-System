@@ -8,6 +8,7 @@ use App\Http\Controllers\API\CinemaController;
 use App\Http\Controllers\API\HallController;
 use App\Http\Controllers\API\SeatController;
 use App\Http\Controllers\API\ShowtimeController;
+use App\Http\Controllers\API\ReservationController;
 
 Route::post('/login', [AuthenticationController::class, 'login']);
 Route::post('/register', [AuthenticationController::class, 'register']);
@@ -28,4 +29,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/seats/{seat}', [SeatController::class, 'update']);
 
     Route::resource('showtimes', ShowtimeController::class);
+    Route::resource('reservations', ReservationController::class);
 });

@@ -22,4 +22,16 @@ class Reservation extends Model
     {
         return $this->belongsTo(Showtime::class);
     }
+
+    public function reservationSeats()
+    {
+        return $this->hasMany(ReservationSeat::class);
+    }
+
+    public function seats()
+    {
+        return $this->belongsToMany(Seat::class, 'reservation_seats')
+            ->withPivot('showtime_id')
+            ->withTimestamps();
+    }
 }

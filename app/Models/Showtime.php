@@ -25,4 +25,9 @@ class Showtime extends Model
     {
         return $this->belongsTo(Hall::class);
     }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
 }

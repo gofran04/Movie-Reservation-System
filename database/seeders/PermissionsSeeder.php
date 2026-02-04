@@ -84,7 +84,6 @@ class PermissionsSeeder extends Seeder
             'create-reservation',
             'edit-reservation',
             'view-reservation',
-            'view-all-reservations',
        ]);
 
        $supervisor =  Role::create(['guard_name' => 'sanctum','name' => 'admin']);

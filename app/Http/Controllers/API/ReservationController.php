@@ -17,7 +17,7 @@ class ReservationController extends Controller
     {
         $this->authorize('viewAny', Reservation::class);
 
-        return ReservationResource::collection(ReservationsCollection::collection(request()))->collection;
+        return ReservationResource::collection(ReservationsCollection::collection(request())->where('user_id', Auth::id()));
     }
 
     public function store(StoreReservationRequest $request)

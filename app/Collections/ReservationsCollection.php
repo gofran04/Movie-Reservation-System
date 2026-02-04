@@ -25,7 +25,6 @@ class ReservationsCollection
 
         $allowedFilters = [
             AllowedFilter::exact('id'),
-            AllowedFilter::exact('user_id'),
             AllowedFilter::exact('showtime_id'),
             AllowedFilter::exact('expires_at'),
             'status',

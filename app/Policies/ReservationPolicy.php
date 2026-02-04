@@ -27,6 +27,12 @@ class ReservationPolicy
      */
     public function view(User $authUser, Reservation $reservation): bool
     {
+        // Admins & managers can view any reservation
+        if ($authUser->can('view-all-reservations')) {
+            return true;
+        }
+
+        // Regular user: only their own reservation
         return $authUser->can('view-reservation') && $authUser->id === $reservation->user_id;
     }
 

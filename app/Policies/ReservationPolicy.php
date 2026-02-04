@@ -19,9 +19,9 @@ class ReservationPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Reservation $reservation): bool
+    public function view(User $authUser, Reservation $reservation): bool
     {
-        return false;
+        return $authUser->can('view-reservation') && $authUser->id === $reservation->user_id;
     }
 
     /**

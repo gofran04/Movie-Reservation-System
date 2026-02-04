@@ -34,7 +34,9 @@ class ReservationController extends Controller
 
     public function show(Reservation $reservation)
     {
-        //
+        $this->authorize('view', $reservation);
+
+        return new ReservationResource($reservation);
     }
 
     public function update(UpdateReservationRequest $request, Reservation $reservation)

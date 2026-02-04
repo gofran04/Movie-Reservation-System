@@ -9,6 +9,7 @@ use App\Http\Controllers\API\HallController;
 use App\Http\Controllers\API\SeatController;
 use App\Http\Controllers\API\ShowtimeController;
 use App\Http\Controllers\API\ReservationController;
+use App\Http\Controllers\API\ShowtimeSeatController;
 
 Route::post('/login', [AuthenticationController::class, 'login']);
 Route::post('/register', [AuthenticationController::class, 'register']);
@@ -28,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Update a seat (type / status)
     Route::put('/seats/{seat}', [SeatController::class, 'update']);
 
+    Route::get('/showtimes/{showtime}/available-seats', [ShowtimeSeatController::class, 'availableSeats']);
     Route::resource('showtimes', ShowtimeController::class);
     Route::resource('reservations', ReservationController::class);
 });

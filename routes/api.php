@@ -33,5 +33,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/showtimes/{showtime}/available-seats', [ShowtimeSeatController::class, 'availableSeats']);
     Route::post('/reservations/{reservation}/cancel', [ReservationCancellationController::class, 'cancel']);
     Route::resource('showtimes', ShowtimeController::class);
-    Route::resource('reservations', ReservationController::class);
+    Route::resource('reservations', ReservationController::class)->except(['update', 'destroy']);
 });

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Reservation\StoreReservationRequest;
-use App\Http\Requests\Reservation\UpdateReservationRequest;
 use App\Http\Resources\ReservationResource;
 use App\Services\CreateReservationService;
 use App\Collections\ReservationsCollection;
@@ -38,15 +37,5 @@ class ReservationController extends Controller
         $this->authorize('view', $reservation);
 
         return new ReservationResource($reservation);
-    }
-
-    public function update(UpdateReservationRequest $request, Reservation $reservation)
-    {
-        //
-    }
-
-    public function destroy(Reservation $reservation)
-    {
-        //
     }
 }

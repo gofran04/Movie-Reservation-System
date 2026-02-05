@@ -45,19 +45,21 @@ class ReservationPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determine whether the user can cancel models.
      */
-    public function update(User $user, Reservation $reservation): bool
+    public function cancel(User $authUser, Reservation $reservation)
     {
-        return false;
-    }
+        if ($reservation->status === 'cancelled') {
+            return Response::deny('Reservation is already cancelled.');
+        }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Reservation $reservation): bool
-    {
-        return false;
+        if ($authUser->can('cancel-any-reservation')) {
+            return true;
+        }
+
+        return $authUser->can('cancel-own-reservation')
+            && $authUser->id === $reservation->user_id
+            && $reservation->status === 'pending';
     }
 
     /**

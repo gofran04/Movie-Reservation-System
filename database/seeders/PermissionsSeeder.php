@@ -62,7 +62,6 @@ class PermissionsSeeder extends Seeder
             'delete-showtime',
 
             'create-reservation',
-            'edit-reservation',
             'view-reservation',
             'view-all-reservations',
             'cancel-any-reservation',
@@ -83,7 +82,6 @@ class PermissionsSeeder extends Seeder
             'view-profile',
 
             'create-reservation',
-            'edit-reservation',
             'view-reservation',
             'cancel-own-reservation',
        ]);
@@ -120,7 +118,6 @@ class PermissionsSeeder extends Seeder
             'edit-showtime',
             'delete-showtime',
 
-            'edit-reservation',
             'view-reservation',
             'view-all-reservations',
             'cancel-any-reservation'

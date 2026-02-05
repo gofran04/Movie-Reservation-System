@@ -35,17 +35,22 @@ class ShowtimePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Showtime $showtime): bool
+    public function update(User $auhtUser, Showtime $showtime): bool
     {
-        return $user->can('edit-showtime');
+        return $auhtUser->can('edit-showtime');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Showtime $showtime): bool
+    public function delete(User $auhtUser, Showtime $showtime)
     {
-        return false;
+        if($showtime->reservations()->count()){
+            return Response::deny('Cannot delete a showtime with existing reservations.');
+        }
+
+        return $auhtUser->can('delete-showtime') 
+            && $showtime->start_time > now();
     }
 
     /**

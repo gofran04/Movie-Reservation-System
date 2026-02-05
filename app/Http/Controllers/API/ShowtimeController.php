@@ -55,6 +55,9 @@ class ShowtimeController extends Controller
 
     public function destroy(Showtime $showtime)
     {
-        //
+        $this->authorize('delete', $showtime);
+        $showtime->delete();    
+
+        return response()->json(['message' => 'Showtime deleted successfully']);
     }
 }

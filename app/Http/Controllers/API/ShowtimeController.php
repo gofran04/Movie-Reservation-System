@@ -37,7 +37,7 @@ class ShowtimeController extends Controller
             $showtime = Showtime::create($inputs);
 
             foreach ($prices as $type => $price) {
-                $showtime->prices()->create([
+                $showtime->showtimePrices()->create([
                     'seat_type' => $type,
                     'price'     => $price,
                 ]);
@@ -71,8 +71,8 @@ class ShowtimeController extends Controller
 
             if ($prices) {
                 foreach ($prices as $type => $price) {
-                    $showtime->prices()->updateOrCreate(
-                        ['seat_type' => $type],
+                    $showtime->showtimePrices()->updateOrCreate(
+                        ['ype' => $type],
                         ['price' => $price]
                     );
                 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('showtime_prices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('showtime_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['regular', 'vip'])->default('regular');
+            $table->enum('seat_type', ['regular', 'vip'])->default('regular');
             $table->decimal('price', 10, 2)->default(0);
             $table->timestamps();
         });

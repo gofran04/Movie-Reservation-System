@@ -30,4 +30,9 @@ class Showtime extends Model
     {
         return $this->hasMany(Reservation::class);
     }
+
+    public function showtimePrices()
+    {
+        return $this->hasMany(ShowtimePrice::class);
+    }
 }

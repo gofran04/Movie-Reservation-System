@@ -19,6 +19,7 @@ class ReservationsCollection
             'user_id',
             'showtime_id',
             'status',
+            'total_price',
             'expires_at',
             'created_at',
             'updated_at',
@@ -30,6 +31,7 @@ class ReservationsCollection
             AllowedFilter::exact('showtime_id'),
             AllowedFilter::exact('expires_at'),
             'status',
+            'total_price',
             'created_at',
             'updated_at',
         ];

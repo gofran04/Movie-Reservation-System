@@ -10,7 +10,17 @@ class Reservation extends Model
         'user_id',
         'showtime_id',
         'status',
+        'total_price',
         'expires_at',
+    ];
+
+    /*
+        Whenever Laravel retrieves price from DB, it will:
+        Format it as a decimal and Keep 2 digits after decimal
+    */ 
+    protected $casts = [
+        'total_price' => 'decimal:2',
+        'expires_at'  => 'datetime',
     ];
 
     public function user()

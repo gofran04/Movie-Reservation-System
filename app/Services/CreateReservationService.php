@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\DB;
 use App\Models\Showtime;
+use App\Models\ShowtimePrice;
 use App\Models\Seat;
 use App\Models\ReservationSeat;
 use Illuminate\Validation\ValidationException;
@@ -24,15 +25,19 @@ class CreateReservationService
             // 3. Check availability (FOR UPDATE)
             $this->assertSeatsAreAvailable($showtimeId, $seatIds);
 
-            // 4. Create reservation
+            //4. Calculate total price (optional, but usually needed)
+            $totalPrice = $this->calculateTotalPrice($showtimeId, $seatIds);
+
+            // 5. Create reservation
             $reservation = Reservation::create([
                 'user_id'     => $userId,
                 'showtime_id' => $showtimeId,
                 'status'      => 'pending',
+                'total_price' => $totalPrice,
                 'expires_at'  => now()->addMinutes(10),
             ]);
 
-            // 5. Attach seats
+            // 6. Attach seats
             $this->attachSeats($reservation, $seatIds, $showtimeId);
 
             return $reservation->load('seats');
@@ -113,11 +118,36 @@ class CreateReservationService
         }
     }
 
+    private function calculateTotalPrice(int $showtimeId, array $seatIds): float
+    {
+        /*
+            |--------------------------------------------------------------------------
+            | 4. Calculate total price
+            |--------------------------------------------------------------------------
+        */
+       // Fetch seats with their type
+        $seats = Seat::whereIn('id', $seatIds)->get();
+
+        // Fetch showtime prices
+        $showtimePrices = ShowtimePrice::where('showtime_id', $showtimeId)->pluck('price', 'seat_type'); // ['regular' => 25, 'vip' => 45]
+
+        // Calculate total price
+        $totalPrice = 0;
+
+        foreach ($seats as $seat) {
+            $seatType = $seat->type;           // 'regular' or 'vip'
+            $price = $showtimePrices[$seatType]; // get price from showtimePrice
+            $totalPrice += $price;             // add to total
+        }
+
+        return $totalPrice;
+    }
+
     private function attachSeats(Reservation $reservation, array $seatIds, int $showtimeId): void
     {
         /*
             |--------------------------------------------------------------------------
-            | 5. Attach seats to reservation
+            | 6. Attach seats to reservation
             |--------------------------------------------------------------------------
             |
             | We create seat locks by attaching seats to the reservation.

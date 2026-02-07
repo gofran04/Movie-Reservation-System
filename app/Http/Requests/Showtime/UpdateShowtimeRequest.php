@@ -26,9 +26,12 @@ class UpdateShowtimeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'movie_id'   => ['required', 'exists:movies,id'],
-            'hall_id'    => ['required', 'exists:halls,id'],
-            'start_time' => ['required', 'date_format:Y-m-d H:i:s', 'after:now'],
+            'movie_id'          => ['required', 'exists:movies,id'],
+            'hall_id'           => ['required', 'exists:halls,id'],
+            'start_time'        => ['required', 'date_format:Y-m-d H:i:s', 'after:now'],
+            'prices'            => ['sometimes', 'array'],
+            'prices.regular'    => ['required_with:prices', 'numeric', 'min:0','max:99999999.99'],
+            'prices.vip'        => ['required_with:prices', 'numeric', 'min:0','max:99999999.99'],
         ];
     }
 

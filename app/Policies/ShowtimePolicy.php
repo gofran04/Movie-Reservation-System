@@ -35,8 +35,12 @@ class ShowtimePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $auhtUser, Showtime $showtime): bool
+    public function update(User $auhtUser, Showtime $showtime)
     {
+        if($showtime->reservations()->count() > 0){
+            return Response::deny('Cannot edit a showtime with existing reservations.');
+        }
+        
         return $auhtUser->can('edit-showtime');
     }
 

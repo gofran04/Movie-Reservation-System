@@ -8,13 +8,11 @@ class Payment extends Model
 {
     protected $fillable = [
         'reservation_id',
+        'stripe_checkout_session_id',
         'amount',
         'currency',
         'status',
-        'provider',
-        'transaction_reference',
-        'paid_at',
-    ];
+        ];
 
     protected $casts = [
         'paid_at' => 'datetime',

@@ -14,12 +14,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
+            $table->string('stripe_checkout_session_id')->unique();
             $table->decimal('amount', 10, 2);
-            $table->string('currency', 3);
-            $table->string('status');
-            $table->string('provider');
-            $table->string('transaction_reference')->nullable();
-            $table->timestamp('paid_at')->nullable();
+            $table->string('currency', 3)->default('usd');
+            $table->enum('status', ['pending', 'succeeded', 'failed']);
             $table->timestamps();
         });
     }

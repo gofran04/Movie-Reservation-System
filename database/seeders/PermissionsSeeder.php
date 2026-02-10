@@ -66,6 +66,8 @@ class PermissionsSeeder extends Seeder
             'view-all-reservations',
             'cancel-any-reservation',
             'cancel-own-reservation',
+            'pay-any-reservation',
+            'pay-own-reservation',
         ];
 
         foreach ($permissions as $permission) 
@@ -84,6 +86,7 @@ class PermissionsSeeder extends Seeder
             'create-reservation',
             'view-reservation',
             'cancel-own-reservation',
+            'pay-own-reservation',
        ]);
 
        $supervisor =  Role::create(['guard_name' => 'sanctum','name' => 'admin']);
@@ -120,7 +123,8 @@ class PermissionsSeeder extends Seeder
 
             'view-reservation',
             'view-all-reservations',
-            'cancel-any-reservation'
+            'cancel-any-reservation',
+            'pay-any-reservation',
          ]);
         }
 }

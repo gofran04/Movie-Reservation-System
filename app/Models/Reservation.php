@@ -44,4 +44,24 @@ class Reservation extends Model
             ->withPivot('showtime_id')
             ->withTimestamps();
     }
+
+    public function payment()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at > now();
+    }
+
+    public function canBePaid(): bool
+    {
+        return $this->isPending() && !$this->isExpired();
+    }
 }

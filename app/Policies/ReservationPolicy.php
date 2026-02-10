@@ -62,6 +62,24 @@ class ReservationPolicy
             && $reservation->status === 'pending';
     }
 
+    public function pay(User $authUser, Reservation $reservation)
+    {
+        if ($reservation->status !== 'pending') {
+            return Response::deny('Only pending reservations can be paid.');
+        }
+
+        if ($reservation->expires_at < now()) {
+            return Response::deny('Reservation expired.');
+        }
+
+        if ($authUser->can('pay-any-reservation')) {
+            return true;
+        }
+
+        return $authUser->can('pay-own-reservation')
+            && $authUser->id === $reservation->user_id;
+    }
+
     /**
      * Determine whether the user can restore the model.
      */

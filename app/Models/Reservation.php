@@ -45,7 +45,7 @@ class Reservation extends Model
             ->withTimestamps();
     }
 
-    public function payment()
+    public function payments()
     {
         return $this->hasMany(Payment::class);
     }

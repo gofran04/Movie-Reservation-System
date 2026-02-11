@@ -53,13 +53,13 @@ class ReservationPolicy
             return Response::deny('Reservation is already cancelled.');
         }
 
-        if ($authUser->can('cancel-any-reservation')) {
+        if (($authUser->can('cancel-any-reservation')) && ($reservation->showtime->start_time > now())) {
             return true;
         }
 
-        return $authUser->can('cancel-own-reservation')
-            && $authUser->id === $reservation->user_id
-            && $reservation->status === 'pending';
+        return $authUser->can('cancel-own-reservation') 
+        && $authUser->id === $reservation->user_id
+        && $reservation->showtime->start_time > now(); // can't cancel past reservations
     }
 
     public function pay(User $authUser, Reservation $reservation)

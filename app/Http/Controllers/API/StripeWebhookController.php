@@ -24,6 +24,9 @@ class StripeWebhookController extends Controller
         if ($event->type === 'checkout.session.completed') {
             $this->handleCheckoutSuccess($event->data->object);
         }
+        if ($event->type === 'checkout.session.async_payment_failed') {
+            $this->handleCheckoutFailure($event->data->object);
+        }
 
         return response()->json(['status' => 'ok']);
     }
@@ -44,6 +47,26 @@ class StripeWebhookController extends Controller
             $payment->reservation->update([
                 'status' => 'confirmed',
             ]);
+        });
+    }
+
+    private function handleCheckoutFailure($session)
+    {
+        DB::transaction(function () use ($session) {
+
+            $payment = Payment::where('stripe_checkout_session_id', $session->id)->lockForUpdate()->first();
+
+            if (!$payment) return;
+
+            $payment->update(['status' => 'failed']);
+
+            $reservation = $payment->reservation;
+
+            $reservation->update([
+                'status' => 'cancelled',
+            ]);
+
+            $reservation->seats()->detach(); // free seats
         });
     }
 }

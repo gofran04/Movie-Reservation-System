@@ -37,6 +37,7 @@ class StripeWebhookController extends Controller
                 ->firstOrFail();
 
             $payment->update([
+                'stripe_payment_intent_id' => $session->payment_intent, // store payment intent for future refunds. it's needed for refunds because checkout session doesn't have refund endpoint, but payment intent does. it's created automatically by stripe when checkout session is completed.
                 'status' => 'succeeded',
             ]);
 

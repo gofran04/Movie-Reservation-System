@@ -9,6 +9,7 @@ class Payment extends Model
     protected $fillable = [
         'reservation_id',
         'stripe_checkout_session_id',
+        'stripe_payment_intent_id',
         'amount',
         'currency',
         'status',

@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
             $table->string('stripe_checkout_session_id')->unique();
+            $table->string('stripe_payment_intent_id')->nullable();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3)->default('usd');
-            $table->enum('status', ['pending', 'succeeded', 'failed']);
+            $table->enum('status', ['pending', 'succeeded', 'failed', 'refunded']);
+            $table->index(['reservation_id', 'status']);
             $table->timestamps();
         });
     }

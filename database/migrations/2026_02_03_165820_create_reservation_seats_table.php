@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('reservation_id');
             $table->unsignedBigInteger('seat_id');
             $table->unsignedBigInteger('showtime_id');
+            $table->unique(['showtime_id', 'seat_id'], 'reservation_seats_showtime_seat_unique');
             $table->timestamps();
         });
     }

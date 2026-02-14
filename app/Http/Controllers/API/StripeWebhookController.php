@@ -39,6 +39,9 @@ class StripeWebhookController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            if ($payment->status === 'succeeded') { // idempotency check: if the payment is already marked as succeeded, we can safely ignore this webhook event because it means that we've already processed it before. this can happen if stripe retries the webhook delivery for some reason (e.g. network issues, server downtime, etc.) or if we receive duplicate events for some reason.
+                return;
+            }
             $payment->update([
                 'stripe_payment_intent_id' => $session->payment_intent, // store payment intent for future refunds. it's needed for refunds because checkout session doesn't have refund endpoint, but payment intent does. it's created automatically by stripe when checkout session is completed.
                 'status' => 'succeeded',
@@ -57,6 +60,10 @@ class StripeWebhookController extends Controller
             $payment = Payment::where('stripe_checkout_session_id', $session->id)->lockForUpdate()->first();
 
             if (!$payment) return;
+
+            if ($payment->status === 'failed') { // idempotency check: if the payment is already marked as failed, we can safely ignore this webhook event because it means that we've already processed it before. this can happen if stripe retries the webhook delivery for some reason (e.g. network issues, server downtime, etc.) or if we receive duplicate events for some reason.
+                return;
+            }
 
             $payment->update(['status' => 'failed']);
 

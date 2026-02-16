@@ -31,12 +31,7 @@ class ReservationTest extends TestCase
     {
         // Act
         $user = User::factory()->create();
-        $movie = Movie::factory()->create();
-        $hall = Hall::factory()->create();
-        $showtime = Showtime::factory()->create([
-            'movie_id' => $movie->id,
-            'hall_id'  => $hall->id,
-        ]);
+        $showtime = $this->createShowtime();
 
         $this->actingAs($user);
 
@@ -62,12 +57,7 @@ class ReservationTest extends TestCase
         // Arrange
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        $movie = Movie::factory()->create();
-        $hall = Hall::factory()->create();
-        $showtime = Showtime::factory()->create([
-            'movie_id' => $movie->id,
-            'hall_id'  => $hall->id,
-        ]);
+        $showtime = $this->createShowtime();
 
         $this->actingAs($user1);
 
@@ -91,4 +81,55 @@ class ReservationTest extends TestCase
         // Ensure only one reservation exists for that seat
         $this->assertDatabaseCount('reservations', 1);
     }
+
+    public function test_reservation_is_atomic_and_rolls_back_on_failure()
+    {
+        // Arrange
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user1);
+
+        $payload1 = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(1)->pluck('id')->toArray(), // Take seat #1. my hall has 2 seats only
+        ];
+
+        // Act
+        $response1 = $this->postJson('/api/reservations', $payload1);
+        $response1->assertStatus(201);
+
+        $this->actingAs($user2);
+        $payload2 = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(2)->pluck('id')->toArray(), // Attempt to take seat #1 and seat #2. my hall has 2 seats only
+        ];
+
+        // Act
+        $response2 = $this->postJson('/api/reservations', $payload2);
+
+        $response2->assertStatus(422); // Expect validation error for double booking
+        $response2->assertJsonValidationErrors(['seat_ids']); // Expect validation error for seat_ids
+        $this->assertDatabaseCount('reservations', 1);
+        $this->assertDatabaseMissing('reservation_seats', [
+            'seat_id' => $payload2['seat_ids'][1], // The second seat should be available and not reserved
+        ]);
+        $this->assertDatabaseHas('reservation_seats', [
+            'seat_id' => $payload2['seat_ids'][0], // The first seat should be not available and reserved
+        ]);
+    }
+
+    private function createShowtime()
+    {
+        $movie = Movie::factory()->create();
+        $hall = Hall::factory()->create();
+        $showtime = Showtime::factory()->create([
+            'movie_id' => $movie->id,
+            'hall_id'  => $hall->id,
+        ]);
+
+        return $showtime;
+    }
 }
+

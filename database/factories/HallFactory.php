@@ -23,7 +23,7 @@ class HallFactory extends Factory
             'name'          => fake()->word(),
             'cinema_id'     => Cinema::first()->id,
             'total_rows'    => 1,
-            'total_columns' => 1,
+            'total_columns' => 2, // 2 seats in the hall
             'status'        => 'active',
         ];
     }

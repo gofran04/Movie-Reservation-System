@@ -227,6 +227,29 @@ class ReservationTest extends TestCase
                 $response->getContent());
     }
 
+    public function test_user_can_not_book_seats_from_hall_other_than_showtime_hall()
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $hall1 = Hall::factory()->create();
+        $hall2 = Hall::factory()->create();
+        $showtime1 = Showtime::factory()->create(['hall_id'  => $hall1->id]);
+        
+        $this->actingAs($user);
+
+        $seatIds = $hall2->seats()->take(1)->pluck('id')->toArray();
+        
+        $payload = [
+            'showtime_id' => $showtime1->id,
+            'seat_ids'    => $seatIds,
+        ];
+
+        $response = $this->postJson('/api/reservations', $payload);
+
+        $response->assertStatus(422); 
+        $response->assertJsonValidationErrors('seat_ids');
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

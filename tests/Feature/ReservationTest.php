@@ -187,9 +187,6 @@ class ReservationTest extends TestCase
 
         $this->actingAs($user);
 
-        // $seatIds = $showtime->hall->seats()->take(1)->pluck('id')->toArray();
-        // $seatIds[0] = $seatIds[0] + 999; // Add a non-existent seat ID to the valid seat IDs
-        
         $payload = [
             'showtime_id' => $showtime->id,
             'seat_ids'    => [999], // Non-existent seat ID
@@ -201,6 +198,33 @@ class ReservationTest extends TestCase
         // Assert
         $response->assertStatus(422); // Expect validation error for non-existent seat
         $this->assertArrayHasKey('seat_ids.0', $response->json('errors'));
+    }
+
+    public function test_user_can_not_reserve_showtime_in_the_past()
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $movie = Movie::factory()->create();
+        $hall = Hall::factory()->create();
+        $showtime = Showtime::factory()->create([
+            'movie_id' => $movie->id,
+            'hall_id'  => $hall->id,
+            'start_time' => now()->subHour(), // Showtime in the past
+            'end_time' => now()->subHour()->addMinutes($movie->duration_minutes),
+        ]);
+        $this->actingAs($user);
+
+        $seatIds = $showtime->hall->seats()->take(1)->pluck('id')->toArray();
+        
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $seatIds,
+        ];
+
+        $response = $this->postJson('/api/reservations', $payload);
+        $response->assertStatus(422); // Expect validation error for showtime in the past
+        $this->assertStringContainsString('You cannot reserve a showtime that has already started',
+                $response->getContent());
     }
 
     private function createShowtime()

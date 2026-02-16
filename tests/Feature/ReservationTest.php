@@ -120,6 +120,44 @@ class ReservationTest extends TestCase
         ]);
     }
 
+    public function test_auth_user_can_cancel_reservation_and_seats_become_available()
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(1)->pluck('id')->toArray(),
+        ];
+
+        // Act
+        $response = $this->postJson('/api/reservations', $payload);
+        $response->assertStatus(201);
+
+        $reservationId = $response->json('data.id');
+
+        // Assert
+        $cancelResponse = $this->postJson("/api/reservations/{$reservationId}/cancel");
+        $cancelResponse->assertStatus(200);
+
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservationId,
+            'status' => 'cancelled',
+        ]);
+
+        $this->assertDatabaseMissing('reservation_seats', [
+            'seat_id' => $payload['seat_ids'][0], // The seat should be released and available again after cancellation
+        ]);
+
+        // Ensure the seat is now available for reservation again
+        $newResponse = $this->postJson('/api/reservations', $payload);
+        $newResponse->assertStatus(201);
+        
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

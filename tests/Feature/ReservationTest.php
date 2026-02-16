@@ -157,6 +157,27 @@ class ReservationTest extends TestCase
         $newResponse->assertStatus(201);
         
     }
+    
+    public function test_user_can_not_reserve_zero_seats()
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => [], // No seats selected
+        ];
+
+        // Act
+        $response = $this->postJson('/api/reservations', $payload);
+
+        // Assert
+        $response->assertStatus(422); // Expect validation error for no seats selected
+        $response->assertJsonValidationErrors(['seat_ids']); // Expect validation error for seat_ids
+    }
 
     private function createShowtime()
     {

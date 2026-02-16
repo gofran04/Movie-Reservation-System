@@ -179,6 +179,30 @@ class ReservationTest extends TestCase
         $response->assertJsonValidationErrors(['seat_ids']); // Expect validation error for seat_ids
     }
 
+    public function test_user_can_not_reserve_not_existed_seats()
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        // $seatIds = $showtime->hall->seats()->take(1)->pluck('id')->toArray();
+        // $seatIds[0] = $seatIds[0] + 999; // Add a non-existent seat ID to the valid seat IDs
+        
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => [999], // Non-existent seat ID
+        ];
+
+        // Act
+        $response = $this->postJson('/api/reservations', $payload);
+
+        // Assert
+        $response->assertStatus(422); // Expect validation error for non-existent seat
+        $this->assertArrayHasKey('seat_ids.0', $response->json('errors'));
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

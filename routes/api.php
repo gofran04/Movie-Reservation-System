@@ -12,7 +12,7 @@ use App\Http\Controllers\API\ReservationController;
 use App\Http\Controllers\API\ShowtimeSeatController;
 use App\Http\Controllers\API\ReservationCancellationController;
 use App\Http\Controllers\API\PaymentController;
-use App\Http\Controllers\API\StripeWebhookController;
+use App\Http\Controllers\API\WebhookController;
 
 Route::post('/login', [AuthenticationController::class, 'login']);
 Route::post('/register', [AuthenticationController::class, 'register']);
@@ -39,5 +39,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/payments/{reservation}', [PaymentController::class, 'pay']);
 });
-    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
+    Route::post('/stripe/webhook', [WebhookController::class, 'handle']);
 

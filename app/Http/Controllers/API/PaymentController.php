@@ -13,7 +13,7 @@ class PaymentController extends Controller
         $this->authorize('pay', $reservation);
 
         return response()->json([
-            'url' => $service->createCheckoutSession($reservation)
+            'url' => $service->payment($reservation)
         ]);
     }
 }

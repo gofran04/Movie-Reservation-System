@@ -19,7 +19,7 @@ class ReservationCancellationController extends Controller
                 $payment = $reservation->payments()->where('status', 'succeeded')->first();
                 $refundService->refund($payment);
             } else if ($reservation->status === 'pending') {
-                $reservation->payment->update([
+                $reservation->update([
                     'status' => 'cancelled',
                 ]);
             }

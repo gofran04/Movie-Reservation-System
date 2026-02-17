@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Reservation;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Showtime;
 
 class StoreReservationRequest extends FormRequest
 {
@@ -11,6 +12,14 @@ class StoreReservationRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        $showtimeId = $this->input('showtime_id');
+
+        if ($showtimeId) {
+            $showtime = Showtime::find($showtimeId);
+            if($showtime->start_time < now()){
+                abort(422, __('You cannot reserve a showtime that has already started'));
+            }
+        }
         return true;
     }
 

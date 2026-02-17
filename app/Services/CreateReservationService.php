@@ -77,9 +77,6 @@ class CreateReservationService
             | Backend must enforce domain integrity.
             |
         */
-        // $showtime = Showtime::query()
-        //     ->with('hall:id')
-        //     ->findOrFail($showtimeId);
         $showtime = Showtime::findOrFail($showtimeId);
 
         $validSeatCount = Seat::whereIn('id', $seatIds)

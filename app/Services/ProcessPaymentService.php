@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Reservation;
 use App\Services\Contracts\PaymentGatewayInterface;
+use App\Models\Payment;
 
 class ProcessPaymentService
 {
@@ -15,6 +16,16 @@ class ProcessPaymentService
 
     public function payment(Reservation $reservation)
     {
-        return $this->gateWay->pay($reservation);
+        $result = $this->gateWay->pay($reservation);
+
+        Payment::create([
+            'reservation_id'             => $reservation->id,
+            'stripe_checkout_session_id' => $result['reference_id'],
+            'amount'                     => $reservation->total_price,
+            'currency'                   => 'usd',
+            'status'                     => 'pending',
+        ]);
+
+        return $result['redirectUrl'];    
     }
 }

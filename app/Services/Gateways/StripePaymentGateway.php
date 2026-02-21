@@ -10,7 +10,7 @@ use App\Services\Contracts\PaymentGatewayInterface;
 
 class StripePaymentGateway implements PaymentGatewayInterface
 {
-    public function pay(Reservation $reservation): string
+    public function pay(Reservation $reservation): array
     {
         /* 
             Used checkout session to create a payment session with stripe, and then store the session id in the database for later reference.
@@ -38,14 +38,9 @@ class StripePaymentGateway implements PaymentGatewayInterface
             'cancel_url'  => 'https://example.com/cancel'
         ]);
 
-        Payment::create([
-            'reservation_id' => $reservation->id,
-            'stripe_checkout_session_id' => $session->id, // Store session ID for later reference
-            'amount' => $reservation->total_price,
-            'currency' => 'usd',
-            'status' => 'pending',
-        ]);
-
-        return $session->url;
+        return [
+            'reference_id' => $session->id,
+            'redirectUrl'  => $session->url,
+        ];
     }
 }

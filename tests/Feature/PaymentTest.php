@@ -56,7 +56,7 @@ class PaymentTest extends TestCase
         $payment = Payment::first();
 
         // Simulate webhook success callback
-        app(StripeWebhookService::class)->handleSuccess($payment->stripe_checkout_session_id, 'fake_intent_123');
+        app(StripeWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
 
         // Assert payment + reservation updated
         $this->assertDatabaseHas('payments', [

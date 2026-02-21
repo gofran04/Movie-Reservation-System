@@ -20,7 +20,7 @@ class ProcessPaymentService
 
         Payment::create([
             'reservation_id'             => $reservation->id,
-            'stripe_checkout_session_id' => $result['reference_id'],
+            'gateway_reference'          => $result['reference_id'],
             'amount'                     => $reservation->total_price,
             'currency'                   => 'usd',
             'status'                     => 'pending',

@@ -11,7 +11,7 @@ class StripeWebhookService
     {
         DB::transaction(function () use ($sessionId, $paymentIntentId) {
 
-            $payment = Payment::where('stripe_checkout_session_id', $sessionId)
+            $payment = Payment::where('gateway_reference', $sessionId)
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -35,7 +35,7 @@ class StripeWebhookService
     {
         DB::transaction(function () use ($sessionId) {
 
-            $payment = Payment::where('stripe_checkout_session_id', $sessionId)
+            $payment = Payment::where('gateway_reference', $sessionId)
                 ->lockForUpdate()
                 ->first();
 

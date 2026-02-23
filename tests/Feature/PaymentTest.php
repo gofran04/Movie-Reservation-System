@@ -13,6 +13,7 @@ use App\Models\Hall;
 use App\Models\User;
 use App\Models\Payment;
 use App\Services\Gateways\FakeSuccessPaymentGateway;
+use App\Services\Gateways\FakeFailPaymentGateway;
 use App\Services\Contracts\PaymentGatewayInterface;
 
 class PaymentTest extends TestCase
@@ -70,6 +71,46 @@ class PaymentTest extends TestCase
         ]);
     }
 
+    public function test_payment_failure_cancels_reservation_and_releases_seats()
+    {
+        $this->app->bind(PaymentGatewayInterface::class,FakeFailPaymentGateway::class);
+
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(1)->pluck('id')->toArray(),
+        ];
+
+        //create reservation
+        $reservationResponse = $this->postJson('/api/reservations', $payload);
+        $reservationResponse->assertStatus(201);
+
+        $reservationId = $reservationResponse->json('data.id');
+
+        //call payment API
+        $paymentResponse = $this->postJson("/api/payments/{$reservationId}");
+        $paymentResponse->assertStatus(200);
+
+        $payment = Payment::first();
+
+        app(StripeWebhookService::class)->handleFailure($payment->gateway_reference);
+
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'status' => 'failed',
+        ]);
+
+        $this->assertDatabaseHas('reservations', [
+            'id' => $reservationId,
+            'status' => 'cancelled',
+        ]);
+
+        $this->assertDatabaseCount('reservation_seats', 0);
+    }
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

@@ -4,11 +4,15 @@ namespace App\Services;
 
 use App\Models\Payment;
 use Illuminate\Validation\ValidationException;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
-
+use App\Services\Contracts\RefundGatewayInterface;
 class RefundService
 {
+    protected RefundGatewayInterface $gateWay;
+
+    public function __construct(RefundGatewayInterface $gateWay) {
+        $this->gateWay = $gateWay;
+    }
+
     public function refund(Payment $payment): void
     {
         if ($payment->status !== 'succeeded') {
@@ -17,14 +21,15 @@ class RefundService
             ]);
         }
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+        try {
+           $result =  $this->gateWay->refund($payment);
 
-        \Stripe\Refund::create([
-            'payment_intent' => $payment->stripe_payment_intent_id,
+           $payment->update([
+            'refund_reference' => $result['reference_id'],
+            'status'           => 'refund_pending',
         ]);
-
-        $payment->update([
-            'status' => 'refunded',
-        ]);
+        } catch (\Exception $e) {
+            throw new \Exception('Refund failed: ' . $e->getMessage());
+        }
     }
 }

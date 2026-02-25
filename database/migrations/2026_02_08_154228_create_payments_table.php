@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
             $table->string('gateway_reference')->unique()->nullable();
+            $table->string('refund_reference')->nullable()->index();
             $table->string('stripe_payment_intent_id')->nullable();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3)->default('usd');
-            $table->enum('status', ['pending', 'succeeded', 'failed', 'refunded']);
+            $table->enum('status', ['pending', 'succeeded', 'failed', 'refund_pending','refunded','refund_failed']);
             $table->index(['reservation_id', 'status']);
             $table->timestamps();
         });

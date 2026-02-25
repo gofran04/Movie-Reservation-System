@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Gateways;
+namespace App\Services\Gateways\Stripe;
 
 use App\Models\Reservation;
 use Stripe\Stripe;

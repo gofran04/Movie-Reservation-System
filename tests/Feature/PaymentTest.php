@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Database\Seeders\CinemaSeeder;
 use Illuminate\Support\Facades\Gate;
-use App\Services\StripeWebhookService;
+use App\Services\Webhooks\Stripe\StripeWebhookService;
 use App\Models\Movie;
 use App\Models\Showtime;
 use App\Models\Hall;

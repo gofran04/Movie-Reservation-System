@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Stripe\Webhook;
-use App\Services\StripeWebhookService;
-use App\Services\StripeRefundWebhookService;
+use App\Services\Webhooks\Stripe\StripeWebhookService;
+use App\Services\Webhooks\Stripe\StripeRefundWebhookService;
 
 class WebhookController extends Controller
 {
@@ -69,24 +69,4 @@ class WebhookController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
-    // public function handle(Request $request)
-    // {
-    //     $payload = $request->getContent();
-    //     $sigHeader = $request->header('Stripe-Signature');
-
-    //     $event = Webhook::constructEvent(
-    //         $payload,
-    //         $sigHeader,
-    //         config('services.stripe.webhook_secret')
-    //     );
-
-    //     if ($event->type === 'checkout.session.completed') {
-    //         $this->stripeWebhookService->handleSuccess($event->data->object->id, $event->data->object->payment_intent);
-    //     }
-    //     if ($event->type === 'checkout.session.async_payment_failed') {
-    //         $this->stripeWebhookService->handleFailure($event->data->object->id);
-    //     }
-
-    //     return response()->json(['status' => 'ok']);
-    // }
 }

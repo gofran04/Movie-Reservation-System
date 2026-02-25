@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Webhooks\Stripe;
 
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;

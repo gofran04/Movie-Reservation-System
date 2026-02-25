@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Database\Seeders\CinemaSeeder;
 use Illuminate\Support\Facades\Gate;
-use App\Services\Webhooks\Stripe\StripeWebhookService;
+use App\Services\Webhooks\Stripe\StripePaymentWebhookService;
 use App\Models\Movie;
 use App\Models\Showtime;
 use App\Models\Hall;
@@ -57,7 +57,7 @@ class PaymentTest extends TestCase
         $payment = Payment::first();
 
         // Simulate webhook success callback
-        app(StripeWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
+        app(StripePaymentWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
 
         // Assert payment + reservation updated
         $this->assertDatabaseHas('payments', [
@@ -97,7 +97,7 @@ class PaymentTest extends TestCase
 
         $payment = Payment::first();
 
-        app(StripeWebhookService::class)->handleFailure($payment->gateway_reference);
+        app(StripePaymentWebhookService::class)->handleFailure($payment->gateway_reference);
 
         $this->assertDatabaseHas('payments', [
             'id' => $payment->id,

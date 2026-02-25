@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Models\Payment;
 use Illuminate\Validation\ValidationException;
 use App\Services\Contracts\RefundGatewayInterface;
-class RefundService
+
+class ProcessRefundService
 {
     protected RefundGatewayInterface $gateWay;
 

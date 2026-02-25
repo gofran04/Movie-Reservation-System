@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Gateways\Stripe;
 
 use App\Models\Payment;
 use Illuminate\Validation\ValidationException;
+use App\Services\Contracts\RefundGatewayInterface;
 use Stripe\Stripe;
-use Stripe\Checkout\Session;
 
-class RefundService
+class StripeRefundGateway implements RefundGatewayInterface
 {
-    public function refund(Payment $payment): void
+    public function refund(Payment $payment)
     {
         if ($payment->status !== 'succeeded') {
             throw ValidationException::withMessages([
@@ -19,12 +19,12 @@ class RefundService
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        \Stripe\Refund::create([
+        $refund = \Stripe\Refund::create([
             'payment_intent' => $payment->stripe_payment_intent_id,
         ]);
 
-        $payment->update([
-            'status' => 'refunded',
-        ]);
+        return [
+                'reference_id' => $refund->id,
+            ];
     }
 }

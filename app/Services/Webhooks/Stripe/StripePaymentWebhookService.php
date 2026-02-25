@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Webhooks\Stripe;
 
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 
-class StripeWebhookService
+class StripePaymentWebhookService
 {
     public function handleSuccess(string $sessionId, ?string $paymentIntentId = null): void
     {
         DB::transaction(function () use ($sessionId, $paymentIntentId) {
 
-            $payment = Payment::where('stripe_checkout_session_id', $sessionId)
+            $payment = Payment::where('gateway_reference', $sessionId)
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -35,7 +35,7 @@ class StripeWebhookService
     {
         DB::transaction(function () use ($sessionId) {
 
-            $payment = Payment::where('stripe_checkout_session_id', $sessionId)
+            $payment = Payment::where('gateway_reference', $sessionId)
                 ->lockForUpdate()
                 ->first();
 

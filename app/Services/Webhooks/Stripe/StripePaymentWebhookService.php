@@ -5,7 +5,7 @@ namespace App\Services\Webhooks\Stripe;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 
-class StripeWebhookService
+class StripePaymentWebhookService
 {
     public function handleSuccess(string $sessionId, ?string $paymentIntentId = null): void
     {

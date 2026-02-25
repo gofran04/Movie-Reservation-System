@@ -6,17 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Stripe\Webhook;
-use App\Services\Webhooks\Stripe\StripeWebhookService;
+use App\Services\Webhooks\Stripe\StripePaymentWebhookService;
 use App\Services\Webhooks\Stripe\StripeRefundWebhookService;
 
 class WebhookController extends Controller
 {
-    protected StripeWebhookService $stripeWebhookService;
+    protected StripePaymentWebhookService $StripePaymentWebhookService;
     protected StripeRefundWebhookService $stripeRefundWebhookService;
 
-    public function __construct(StripeWebhookService $stripeWebhookService, StripeRefundWebhookService $stripeRefundWebhookService)
+    public function __construct(StripePaymentWebhookService $StripePaymentWebhookService, StripeRefundWebhookService $stripeRefundWebhookService)
     {
-        $this->stripeWebhookService = $stripeWebhookService;
+        $this->StripePaymentWebhookService = $StripePaymentWebhookService;
         $this->stripeRefundWebhookService = $stripeRefundWebhookService;
     }
 
@@ -40,14 +40,14 @@ class WebhookController extends Controller
         match ($event->type) {
 
             // Payment success
-            'checkout.session.completed' => $this->stripeWebhookService
+            'checkout.session.completed' => $this->StripePaymentWebhookService
                 ->handleSuccess(
                     $event->data->object->id,
                     $event->data->object->payment_intent
                 ),
 
             // Payment failure
-            'checkout.session.async_payment_failed' => $this->stripeWebhookService
+            'checkout.session.async_payment_failed' => $this->StripePaymentWebhookService
                 ->handleFailure(
                     $event->data->object->id
                 ),

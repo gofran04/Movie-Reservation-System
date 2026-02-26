@@ -12,9 +12,13 @@ use App\Models\Showtime;
 use App\Models\Hall;
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\Reservation;
 use App\Services\Gateways\FakeSuccessPaymentGateway;
 use App\Services\Gateways\FakeFailPaymentGateway;
 use App\Services\Contracts\PaymentGatewayInterface;
+use App\Services\Gateways\FakeSuccessRefundGateway;
+use App\Services\Contracts\RefundGatewayInterface;
+use App\Services\Webhooks\Stripe\StripeRefundWebhookService;
 
 class PaymentTest extends TestCase
 {
@@ -111,6 +115,45 @@ class PaymentTest extends TestCase
 
         $this->assertDatabaseCount('reservation_seats', 0);
     }
+
+    public function test_successful_refund_flow_for_confirmed_reservation()
+    {
+        $this->app->bind(RefundGatewayInterface::class,FakeSuccessRefundGateway::class);
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        // Create confirmed reservation for testing (no nedd to send an API regquest to create a real reservation)
+        $reservation = Reservation::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'confirmed',
+        ]);
+
+        // Create a successful payment record for the reservation(for testing refund flow, no need to go through the whole payment process again and send API calls, we can directly create a successful payment record in the database)
+        $payment = Payment::factory()->create([
+                'reservation_id' => $reservation->id,
+                'status'         => 'succeeded',
+        ]);
+
+        //call refund API
+        $this->postJson("/api/reservations/{$reservation->id}/cancel")->assertOk();
+
+        // Refresh payment to get the latest data from the database, and assert the status
+        $payment->refresh();
+        $this->assertEquals('refund_pending', $payment->status);
+        $this->assertNotNull($payment->refund_reference);
+
+        // // Simulate webhook success callback
+        app(StripeRefundWebhookService::class)->handleSuccess($payment->refund_reference);
+
+        $payment->refresh();
+        $reservation->refresh();
+
+        $this->assertEquals('refunded', $payment->status);
+        $this->assertEquals('cancelled', $reservation->status);
+        $this->assertCount(0, $reservation->seats);
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

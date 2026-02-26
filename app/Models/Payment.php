@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payment extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'reservation_id',
         'gateway_reference',// was 'stripe_checkout_session_id' before, renamed to a more generic name to accommodate different gateways

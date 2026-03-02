@@ -195,6 +195,32 @@ class PaymentTest extends TestCase
         $this->assertCount(2, $reservation->seats);
     }
 
+    public function test_user_can_not_refund_other_users_reservation()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user1);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(1)->pluck('id')->toArray(),
+        ];
+
+        // create reservation
+        $reservationResponse = $this->postJson("/api/reservations",$payload);
+        $reservationId = $reservationResponse->json('data.id');
+
+        // Call payment API
+        $this->postJson("/api/payments/{$reservationId}");
+
+        $this->actingAs($user2);
+
+        $response = $this->postJson("/api/reservation/{$reservationId}/cancel");
+        $response->assertStatus(404); // laravel retur 404 instead of 403 to hide resourse existence(if 403 returned, attackers will infer which IDs exist)
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

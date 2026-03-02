@@ -17,6 +17,7 @@ use App\Services\Gateways\FakeSuccessPaymentGateway;
 use App\Services\Gateways\FakeFailPaymentGateway;
 use App\Services\Contracts\PaymentGatewayInterface;
 use App\Services\Gateways\FakeSuccessRefundGateway;
+use App\Services\Gateways\FakeFailRefundGateway;
 use App\Services\Contracts\RefundGatewayInterface;
 use App\Services\Webhooks\Stripe\StripeRefundWebhookService;
 
@@ -152,6 +153,46 @@ class PaymentTest extends TestCase
         $this->assertEquals('refunded', $payment->status);
         $this->assertEquals('cancelled', $reservation->status);
         $this->assertCount(0, $reservation->seats);
+    }
+
+    public function test_refund_failure_does_not_cancel_reservation()
+    {
+        $this->app->bind(RefundGatewayInterface::class,FakeFailRefundGateway::class);
+
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(2)->pluck('id')->toArray(),
+        ];
+
+        // Create reservation
+        $reservationResponse = $this->postJson('/api/reservations', $payload);
+        $reservationResponse->assertStatus(201);
+
+        $reservationId = $reservationResponse->json('data.id');
+        $reservation = Reservation::find($reservationId);
+        $reservation->update(['status' => 'confirmed']);
+
+
+        // Create a successful payment record for the reservation(for testing refund flow, no need to go through the whole payment process again and send API calls, we can directly create a successful payment record in the database)
+        $payment = Payment::factory()->create([
+                'reservation_id' => $reservationId,
+                'status'         => 'succeeded',
+        ]);
+
+        $response = $this->postJson("/api/reservations/{$reservationId}/cancel");
+        $response->assertStatus(500);
+
+        $payment->refresh();
+        $reservation->refresh();
+
+        $this->assertEquals('succeeded', $payment->status);
+        $this->assertEquals('confirmed', $reservation->status);
+        $this->assertCount(2, $reservation->seats);
     }
 
     private function createShowtime()

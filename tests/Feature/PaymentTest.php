@@ -12,9 +12,14 @@ use App\Models\Showtime;
 use App\Models\Hall;
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\Reservation;
 use App\Services\Gateways\FakeSuccessPaymentGateway;
 use App\Services\Gateways\FakeFailPaymentGateway;
 use App\Services\Contracts\PaymentGatewayInterface;
+use App\Services\Gateways\FakeSuccessRefundGateway;
+use App\Services\Gateways\FakeFailRefundGateway;
+use App\Services\Contracts\RefundGatewayInterface;
+use App\Services\Webhooks\Stripe\StripeRefundWebhookService;
 
 class PaymentTest extends TestCase
 {
@@ -111,6 +116,111 @@ class PaymentTest extends TestCase
 
         $this->assertDatabaseCount('reservation_seats', 0);
     }
+
+    public function test_successful_refund_flow_for_confirmed_reservation()
+    {
+        $this->app->bind(RefundGatewayInterface::class,FakeSuccessRefundGateway::class);
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        // Create confirmed reservation for testing (no nedd to send an API regquest to create a real reservation)
+        $reservation = Reservation::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'confirmed',
+        ]);
+
+        // Create a successful payment record for the reservation(for testing refund flow, no need to go through the whole payment process again and send API calls, we can directly create a successful payment record in the database)
+        $payment = Payment::factory()->create([
+                'reservation_id' => $reservation->id,
+                'status'         => 'succeeded',
+        ]);
+
+        //call refund API
+        $this->postJson("/api/reservations/{$reservation->id}/cancel")->assertOk();
+
+        // Refresh payment to get the latest data from the database, and assert the status
+        $payment->refresh();
+        $this->assertEquals('refund_pending', $payment->status);
+        $this->assertNotNull($payment->refund_reference);
+
+        // // Simulate webhook success callback
+        app(StripeRefundWebhookService::class)->handleSuccess($payment->refund_reference);
+
+        $payment->refresh();
+        $reservation->refresh();
+
+        $this->assertEquals('refunded', $payment->status);
+        $this->assertEquals('cancelled', $reservation->status);
+        $this->assertCount(0, $reservation->seats);
+    }
+
+    public function test_refund_failure_does_not_cancel_reservation()
+    {
+        $this->app->bind(RefundGatewayInterface::class,FakeFailRefundGateway::class);
+
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(2)->pluck('id')->toArray(),
+        ];
+
+        // Create reservation
+        $reservationResponse = $this->postJson('/api/reservations', $payload);
+        $reservationResponse->assertStatus(201);
+
+        $reservationId = $reservationResponse->json('data.id');
+        $reservation = Reservation::find($reservationId);
+        $reservation->update(['status' => 'confirmed']);
+
+
+        // Create a successful payment record for the reservation(for testing refund flow, no need to go through the whole payment process again and send API calls, we can directly create a successful payment record in the database)
+        $payment = Payment::factory()->create([
+                'reservation_id' => $reservationId,
+                'status'         => 'succeeded',
+        ]);
+
+        $response = $this->postJson("/api/reservations/{$reservationId}/cancel");
+        $response->assertStatus(500);
+
+        $payment->refresh();
+        $reservation->refresh();
+
+        $this->assertEquals('succeeded', $payment->status);
+        $this->assertEquals('confirmed', $reservation->status);
+        $this->assertCount(2, $reservation->seats);
+    }
+
+    public function test_user_can_not_refund_other_users_reservation()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user1);
+
+        $payload = [
+            'showtime_id' => $showtime->id,
+            'seat_ids'    => $showtime->hall->seats()->take(1)->pluck('id')->toArray(),
+        ];
+
+        // create reservation
+        $reservationResponse = $this->postJson("/api/reservations",$payload);
+        $reservationId = $reservationResponse->json('data.id');
+
+        // Call payment API
+        $this->postJson("/api/payments/{$reservationId}");
+
+        $this->actingAs($user2);
+
+        $response = $this->postJson("/api/reservation/{$reservationId}/cancel");
+        $response->assertStatus(404); // laravel retur 404 instead of 403 to hide resourse existence(if 403 returned, attackers will infer which IDs exist)
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

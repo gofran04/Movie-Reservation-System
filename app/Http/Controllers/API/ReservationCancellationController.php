@@ -5,26 +5,26 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\Reservation;
-use App\Services\RefundService;
+use App\Services\ProcessRefundService;
 
 class ReservationCancellationController extends Controller
 {
-    public function cancel(Reservation $reservation, RefundService $refundService)
+    public function cancel(Reservation $reservation, ProcessRefundService $processRefundService)
     {
         $this->authorize('cancel', $reservation);
 
-        DB::transaction(function () use ($reservation, $refundService) 
+        DB::transaction(function () use ($reservation, $processRefundService) 
         {
             if ($reservation->status === 'confirmed'){
                 $payment = $reservation->payments()->where('status', 'succeeded')->first();
-                $refundService->refund($payment);
+                $processRefundService->refund($payment);
             } else if ($reservation->status === 'pending') {
                 $reservation->update([
                     'status' => 'cancelled',
                 ]);
+
+                $reservation->seats()->detach();// free seats
             }
-            
-            $reservation->seats()->detach();// free seats
         });
 
         return response()->json([

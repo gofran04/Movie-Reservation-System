@@ -11,7 +11,7 @@ class PaymentController extends Controller
 {
     public function pay(Reservation $reservation, ProcessPaymentService $service)
     {
-        // $this->authorize('pay', $reservation);
+        $this->authorize('pay', $reservation);
 
         try {
             $redirectUrl = $service->payment($reservation);

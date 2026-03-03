@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use App\Jobs\CleanupExpiredReservationsJob;
 
-Schedule::job(new CleanupExpiredReservationsJob)->everyMinute();
+Schedule::command('reservations:cleanup-expired')->everyMinute();
 

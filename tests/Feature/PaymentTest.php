@@ -276,6 +276,47 @@ class PaymentTest extends TestCase
         ]);
     }
 
+    public function test_payment_webhook_is_idempotent()
+    {
+        $this->app->bind(PaymentGatewayInterface::class,FakeSuccessPaymentGateway::class);
+
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $reservation = Reservation::factory()->pending()->create([
+            'user_id' => $user->id,
+            'showtime_id' => $showtime->id,
+        ]);
+
+        $this->postJson("/api/payments/{$reservation->id}")->assertStatus(200);
+        $payment = Payment::first();
+
+        // first webhook call - success
+        app(StripePaymentWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
+        $payment->refresh();
+        $firstUpdatedAt = $payment->updated_at;
+
+        // second webhook call with the same session ID (should be idempotent and not update the record again)
+        app(StripePaymentWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
+        $payment->refresh();
+        $secondUpdatedAt = $payment->updated_at;
+
+        $this->assertDatabaseHas('payments', [
+            'id'     => $payment->id,
+            'status' => 'succeeded',
+        ]);
+
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservation->id,
+            'status' => 'confirmed',
+        ]);
+
+        // assert that the updated_at timestamp did not change after the second webhook call, confirming idempotency
+        $this->assertEquals($firstUpdatedAt, $secondUpdatedAt);
+        }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

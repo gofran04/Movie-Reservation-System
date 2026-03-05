@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\Cinema;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Database\Seeders\CinemaSeeder;
 use Illuminate\Support\Facades\Gate;
+use App\Jobs\CleanupExpiredReservationsJob;
+use App\Models\Reservation;
 use App\Models\Movie;
 use App\Models\Showtime;
 use App\Models\Hall;
@@ -248,6 +249,48 @@ class ReservationTest extends TestCase
 
         $response->assertStatus(422); 
         $response->assertJsonValidationErrors('seat_ids');
+    }
+
+    public function test_expired_pending_reservations_are_cancelled_and_seats_released()
+    {
+        $showtime = $this->createShowtime();
+        $seatIds = $showtime->hall->seats()->take(1)->pluck('id')->toArray();
+
+        //create an expired reservation with the seat reserved
+        $expiredReservation = Reservation::factory()
+            ->expired()
+            ->withExistingSeats($seatIds)
+            ->create();
+
+        //create a valid reservation with the seat reserved to ensure it is not affected by the cleanup job
+        $validReservation = Reservation::factory()
+            ->pending()
+            ->withExistingSeats($showtime->hall->seats()->skip(1)->take(1)->pluck('id')->toArray())
+            ->create();
+
+        $job = new CleanupExpiredReservationsJob();
+        $job->handle();// Run the job to cleanup expired reservations
+
+        // Assert expired reservation was cancelled
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $expiredReservation->id,
+            'status' => 'cancelled',
+        ]);
+
+        // Assert seats were released
+        $this->assertDatabaseMissing('reservation_seats', [
+            'reservation_id' => $expiredReservation->id,
+        ]);
+
+        // Assert valid reservation untouched
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $validReservation->id,
+            'status' => 'pending',
+        ]);
+
+        $this->assertDatabaseHas('reservation_seats', [
+            'reservation_id' => $validReservation->id,
+        ]);
     }
 
     private function createShowtime()

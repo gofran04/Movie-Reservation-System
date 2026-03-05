@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 use App\Models\Showtime;
+use App\Models\ReservationSeat;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Reservation>
@@ -27,7 +28,28 @@ class ReservationFactory extends Factory
         ];
     }
 
-    // -------- STATES --------
+    // create seats for the reservation after creating it, using existing seat ids
+    public function withExistingSeats(array $seatIds): static
+    {
+        return $this->afterCreating(function ($reservation) use ($seatIds) {
+
+            $rows = [];
+
+            foreach ($seatIds as $seatId) {
+                $rows[] = [
+                    'reservation_id' => $reservation->id,
+                    'seat_id'        => $seatId,
+                    'showtime_id'    => $reservation->showtime_id,
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
+                ];
+            }
+
+            ReservationSeat::insert($rows);
+        });
+    }
+
+    // -------- STATUS --------
 
     public function pending(): static
     {
@@ -53,8 +75,8 @@ class ReservationFactory extends Factory
     public function expired(): static
     {
         return $this->state(fn () => [
-            'status' => 'expired',
-            'expires_at' => now()->subMinute(),
+            'status'     => 'pending',
+            'expires_at' => now()->subMinute(10),
         ]);
     }
 }

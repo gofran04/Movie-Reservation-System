@@ -221,6 +221,102 @@ class PaymentTest extends TestCase
         $response->assertStatus(404); // laravel retur 404 instead of 403 to hide resourse existence(if 403 returned, attackers will infer which IDs exist)
     }
 
+    public function test_user_can_retry_payment_after_failure()
+    {
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $reservation = Reservation::factory()->pending()->create([
+            'user_id' => $user->id,
+            'showtime_id' => $showtime->id,
+        ]);
+
+        // Call payment API (first attempt - failure)
+        $this->app->bind(PaymentGatewayInterface::class,FakeFailPaymentGateway::class);
+
+        $paymentResponse1 = $this->postJson("/api/payments/{$reservation->id}");
+        $paymentResponse1->assertStatus(200);
+
+        // Assert payment failed
+        $payment1 = Payment::first();
+
+        app(StripePaymentWebhookService::class)->handleFailure($payment1->gateway_reference);
+        $this->assertDatabaseHas('payments', [
+            'id'     => $payment1->id,
+            'status' => 'failed',
+        ]);
+
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservation->id,
+            'status' => 'pending',
+        ]);
+
+        // Change the payment gateway to success for retry
+        $this->app->bind(PaymentGatewayInterface::class,FakeSuccessPaymentGateway::class);
+
+        // Call payment API (second attempt - success)
+        $paymentResponse2 = $this->postJson("/api/payments/{$reservation->id}");
+        $paymentResponse2->assertStatus(200);
+
+        // Assert payment succeeded and reservation confirmed
+        $payment2 = Payment::latest()->first();
+
+        app(StripePaymentWebhookService::class)->handleSuccess($payment2->gateway_reference, 'fake_intent_123');
+
+        $this->assertDatabaseHas('payments', [
+            'id'     => $payment2->id,
+            'status' => 'succeeded',
+        ]);
+
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservation->id,
+            'status' => 'confirmed',
+        ]);
+    }
+
+    public function test_payment_webhook_is_idempotent()
+    {
+        $this->app->bind(PaymentGatewayInterface::class,FakeSuccessPaymentGateway::class);
+
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $reservation = Reservation::factory()->pending()->create([
+            'user_id' => $user->id,
+            'showtime_id' => $showtime->id,
+        ]);
+
+        $this->postJson("/api/payments/{$reservation->id}")->assertStatus(200);
+        $payment = Payment::first();
+
+        // first webhook call - success
+        app(StripePaymentWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
+        $payment->refresh();
+        $firstUpdatedAt = $payment->updated_at;
+
+        // second webhook call with the same session ID (should be idempotent and not update the record again)
+        app(StripePaymentWebhookService::class)->handleSuccess($payment->gateway_reference, 'fake_intent_123');
+        $payment->refresh();
+        $secondUpdatedAt = $payment->updated_at;
+
+        $this->assertDatabaseHas('payments', [
+            'id'     => $payment->id,
+            'status' => 'succeeded',
+        ]);
+
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservation->id,
+            'status' => 'confirmed',
+        ]);
+
+        // assert that the updated_at timestamp did not change after the second webhook call, confirming idempotency
+        $this->assertEquals($firstUpdatedAt, $secondUpdatedAt);
+        }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

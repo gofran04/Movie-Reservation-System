@@ -315,7 +315,57 @@ class PaymentTest extends TestCase
 
         // assert that the updated_at timestamp did not change after the second webhook call, confirming idempotency
         $this->assertEquals($firstUpdatedAt, $secondUpdatedAt);
-        }
+    }
+
+    public function test_refund_webhook_is_idempotent()
+    {
+        $this->app->bind(RefundGatewayInterface::class,FakeSuccessRefundGateway::class);
+
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        // Create confirmed reservation for testing (no nedd to send an API regquest to create a real reservation)
+        $reservation = Reservation::factory()->confirmed()->create([
+            'user_id' => $user->id,
+        ]);
+
+        // Create a successful payment record for the reservation(for testing refund flow, no need to go through the whole payment process again and send API calls, we can directly create a successful payment record in the database)
+        $payment = Payment::factory()->create([
+                'reservation_id' => $reservation->id,
+                'status'         => 'succeeded',
+        ]);
+
+        //call refund API
+        $this->postJson("/api/reservations/{$reservation->id}/cancel")->assertOk();
+
+        $payment->refresh();
+        $this->assertNotNull($payment->refund_reference);
+
+        // first  refund webhook call - success
+        app(StripeRefundWebhookService::class)->handleSuccess($payment->refund_reference);
+        $payment->refresh();
+        $firstUpdatedAt = $payment->updated_at;
+
+        // second refund webhook call with the same refund reference (should be idempotent and not update the record again)
+        app(StripeRefundWebhookService::class)->handleSuccess($payment->refund_reference);
+        $payment->refresh();
+        $secondUpdatedAt = $payment->updated_at;
+
+        $this->assertDatabaseHas('payments', [
+            'id'     => $payment->id,
+            'status' => 'refunded',
+        ]);
+
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservation->id,
+            'status' => 'cancelled',
+        ]);
+
+        // assert that the updated_at timestamp did not change after the second webhook call, confirming idempotency
+        $this->assertEquals($firstUpdatedAt, $secondUpdatedAt);
+    }
 
     private function createShowtime()
     {

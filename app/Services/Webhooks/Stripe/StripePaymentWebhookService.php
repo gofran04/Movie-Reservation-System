@@ -51,15 +51,6 @@ class StripePaymentWebhookService
             $payment->update([
                 'status' => 'failed',
             ]);
-
-            $reservation = $payment->reservation;
-
-            $reservation->update([
-                'status' => 'cancelled',
-            ]);
-
-            // Release seats
-            $reservation->seats()->detach();
         });
     }
 }

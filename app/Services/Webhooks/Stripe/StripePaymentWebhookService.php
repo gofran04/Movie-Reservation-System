@@ -13,7 +13,7 @@ class StripePaymentWebhookService
 
             $payment = Payment::where('gateway_reference', $sessionId)
                 ->lockForUpdate()
-                ->firstOrFail();
+                ->first();
 
             if (!$payment) {
                 return;

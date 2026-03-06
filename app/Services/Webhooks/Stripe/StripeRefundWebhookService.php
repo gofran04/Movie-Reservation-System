@@ -12,7 +12,9 @@ class StripeRefundWebhookService
     {
         DB::transaction(function () use ($refundReference) {
 
-            $payment = Payment::where('refund_reference', $refundReference)->first();
+            $payment = Payment::where('refund_reference', $refundReference)
+                ->lockForUpdate()
+                ->first();
 
             if (! $payment) {
                 Log::error('Refund webhook: Payment not found', [
@@ -47,7 +49,9 @@ class StripeRefundWebhookService
 
     public function handleFailure(string $refundReference): void
     {
-        $payment = Payment::where('refund_reference', $refundReference)->first();
+        $payment = Payment::where('refund_reference', $refundReference)
+                ->lockForUpdate()
+                ->first();
 
         if (! $payment) {
             Log::error('Refund failure webhook: Payment not found', [

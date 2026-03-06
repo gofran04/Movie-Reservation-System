@@ -65,6 +65,38 @@ class ReservationAuthorizationTest extends TestCase
         ]);
     }
 
+    public function test_cannot_cancel_reservation_after_showtime_started()
+    {
+        $user = User::factory()->create();
+        $user->assignRole('client');
+
+        $showtime = Showtime::factory()->create([
+            'start_time' => now()->subHour(), // Showtime started an hour ago
+        ]);
+
+        $seatIds = $showtime->hall->seats()->take(1)->pluck('id')->toArray();
+
+        // Create a reservation
+        $reservation = Reservation::factory()
+            ->pending()
+            ->withExistingSeats($seatIds)
+            ->create([
+                'user_id'     => $user->id,
+                'showtime_id' => $showtime->id,
+            ]);
+
+        $this->actingAs($user);
+
+        // Attempt to cancel the reservation
+        $response = $this->postJson("/api/reservations/{$reservation->id}/cancel");
+        $response->assertStatus(403); // Should return 403 Forbidden (cause showtime already started)
+    
+        $this->assertDatabaseHas('reservations', [
+            'id'     => $reservation->id,
+            'status' => 'pending', // Reservation should still be pending
+        ]);
+       }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

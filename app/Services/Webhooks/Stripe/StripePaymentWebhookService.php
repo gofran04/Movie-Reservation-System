@@ -15,6 +15,10 @@ class StripePaymentWebhookService
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            if (!$payment) {
+                return;
+            }
+
             // Idempotency protection
             if ($payment->status === 'succeeded') {
                 return;

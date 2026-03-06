@@ -367,6 +367,35 @@ class PaymentTest extends TestCase
         $this->assertEquals($firstUpdatedAt, $secondUpdatedAt);
     }
 
+    public function test_webhook_with_unknown_payment_reference_does_no_crash()
+    {
+        $this->app->bind(PaymentGatewayInterface::class,FakeSuccessPaymentGateway::class);
+
+        $showtime = $this->createShowtime();
+        $seatIds = $showtime->hall->seats()->take(1)->pluck('id')->toArray();
+
+        $reservation = Reservation::factory()
+                        ->pending()
+                        ->withExistingSeats($seatIds)
+                        ->create();
+
+        $payment = Payment::factory()->create([
+                'reservation_id'    => $reservation->id,
+                'status'            => 'pending',
+                'gateway_reference' => 'real_reference_123',
+            ]);
+
+        // call webhook with fake reference
+        app(StripePaymentWebhookService::class)->handleSuccess('fake_reference_999', 'intent_fake');
+
+        // payment and reservation should remain unchanged
+        $payment->refresh();
+        $reservation->refresh();
+
+        $this->assertEquals($payment->status,'pending');
+        $this->assertEquals($reservation->status,'pending');
+    }
+
     private function createShowtime()
     {
         $movie = Movie::factory()->create();

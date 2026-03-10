@@ -58,6 +58,15 @@ Gateways
 External APIs (Stripe)
 ```
 
+### Reservation Lifecycle
+
+1. User selects seats for a showtime.
+2. Reservation is created and seats are locked.
+3. User proceeds to payment through Stripe Checkout.
+4. Stripe sends webhook after payment completion.
+5. System updates payment status and confirms reservation.
+6. If reservation expires before payment, seats are released automatically.
+
 ### Core Services
 
 * `CreateReservationService`

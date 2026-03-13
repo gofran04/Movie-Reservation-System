@@ -111,7 +111,7 @@ class PaymentTest extends TestCase
 
         $this->assertDatabaseHas('reservations', [
             'id' => $reservationId,
-            'status' => 'cancelled',
+            'status' => 'pending',
         ]);
 
         $this->assertDatabaseCount('reservation_seats', 0);

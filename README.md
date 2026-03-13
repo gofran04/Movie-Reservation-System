@@ -225,6 +225,45 @@ You can test all API endpoints easily using the official Postman collection:
 
 The system integrates with Stripe Checkout to process payments.
 
+## Testing Stripe Webhooks Locally
+
+Stripe webhooks require Stripe to send HTTP requests to your server.
+When developing locally, you can use the Stripe CLI to forward webhook events to your Laravel application.
+
+### Install Stripe CLI
+
+Follow the installation guide from Stripe.
+
+### Login to Stripe
+
+```bash
+stripe login
+```
+
+### Forward events to local server
+
+```bash
+stripe listen --forward-to localhost:8000/api/stripe/webhook
+```
+
+The CLI will output a webhook signing secret. Add it to your `.env` file:
+
+```text
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+### Trigger test events
+
+You can simulate Stripe events using:
+
+```bash
+stripe trigger checkout.session.completed
+```
+
+This will send a webhook to your local application and trigger the payment success flow.
+
+---
+
 ### Payment Flow
 
 1. User creates reservation

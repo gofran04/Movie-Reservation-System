@@ -55,6 +55,9 @@ class StripePaymentWebhookService
             $payment->update([
                 'status' => 'failed',
             ]);
+
+            $reservation = $payment->reservation;
+            $reservation->seats()->detach();
         });
     }
 }

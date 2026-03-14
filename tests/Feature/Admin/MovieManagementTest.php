@@ -116,4 +116,16 @@ class MovieManagementTest extends TestCase
         $this->assertSoftDeleted($movie);
         $this->assertEquals(0, Movie::count());
     }
+
+    public function test_guests_cannot_manage_movies()
+    {
+        $movie = Movie::factory()->create();
+        $movie->title = 'Updated Movie Title';
+
+        $this->getJson('/api/movies')->assertStatus(401); //index - Unauthenticated user
+        $this->getJson("/api/movies/{$movie->id}")->assertStatus(401); //show - Unauthenticated user
+        $this->postJson('/api/movies', $movie->toArray())->assertStatus(401); //store - Unauthenticated user
+        $this->patchJson("/api/movies/{$movie->id}",$movie->toArray())->assertStatus(401);//update - Unauthenticated user
+        $this->deleteJson("/api/movies/{$movie->id}")->assertStatus(401);//destroy - Unauthenticated user
+    }
 }

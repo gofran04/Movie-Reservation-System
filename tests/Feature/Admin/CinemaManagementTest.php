@@ -43,4 +43,27 @@ class CinemaManagementTest extends TestCase
                ]
         ]);
     }
+
+    public function test_admins_can_edit_cinema(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $cinema = Cinema::first();
+        $cinema->name = 'Updated Cinema Name';
+
+        $response = $this->patch("/api/cinemas/{$cinema->id}",$cinema->toArray());
+
+        $response->assertStatus(200);
+        $response->assertJson([
+               'data' => [
+                   'id'          => $cinema->id,
+                   'name'        => "Updated Cinema Name",
+                   'location'    => $cinema->location,
+               ]
+        ]);
+    }
+
+    
 }

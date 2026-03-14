@@ -1,5 +1,9 @@
 # 🎬 Movie Reservation System API
 
+![Laravel](https://img.shields.io/badge/Laravel-12-red)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![CI](https://github.com/gofran04/Movie-Reservation-System/actions/workflows/tests.yml/badge.svg)
+
 # 📖 Table of Contents
 - [Project Overview](#-project-overview)
 - [Features](#-features)

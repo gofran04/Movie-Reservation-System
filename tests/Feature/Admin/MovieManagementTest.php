@@ -101,4 +101,19 @@ class MovieManagementTest extends TestCase
             'title' => 'Updated Movie Title'
         ]);
     }
+
+    public function test_only_admins_can_delete_a_movie()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $movie = Movie::factory()->create();
+
+        $response = $this->deleteJson("/api/movies/{$movie->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted($movie);
+        $this->assertEquals(0, Movie::count());
+    }
 }

@@ -76,4 +76,13 @@ class CinemaManagementTest extends TestCase
         $this->getJson("/api/cinemas/{$cinema->id}")->assertForbidden();
         $this->patch("/api/cinemas/{$cinema->id}",$cinema->toArray())->assertForbidden();
     }
+
+    public function test_guests_cannot_manage_cinema(): void
+    {
+        $cinema = Cinema::first();
+        $cinema->name = 'Updated Cinema Name';
+
+        $this->getJson("/api/cinemas/{$cinema->id}")->assertStatus(401); // Unauthenticated user
+        $this->patchJson("/api/cinemas/{$cinema->id}",$cinema->toArray())->assertStatus(401);// Unauthenticated user
+    }
 }

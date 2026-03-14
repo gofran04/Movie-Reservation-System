@@ -65,5 +65,15 @@ class CinemaManagementTest extends TestCase
         ]);
     }
 
-    
+    public function test_unauthorized_users_cannot_manage_cinema(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $cinema = Cinema::first();
+        $cinema->name = 'Updated Cinema Name';
+
+        $this->getJson("/api/cinemas/{$cinema->id}")->assertForbidden();
+        $this->patch("/api/cinemas/{$cinema->id}",$cinema->toArray())->assertForbidden();
+    }
 }

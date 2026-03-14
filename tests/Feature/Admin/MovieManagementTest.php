@@ -23,7 +23,7 @@ class MovieManagementTest extends TestCase
     }
 
     public function test_admins_can_view_all_movies()
-     {
+    {
         $admin = User::factory()->create();
         $admin->assignRole('admin');
         $this->actingAs($admin);
@@ -31,9 +31,30 @@ class MovieManagementTest extends TestCase
         Movie::factory()->count(3)->create();
 
         $response = $this->getJson('/api/movies');
-        
+
         $response->assertStatus(200);
         $response->assertJsonCount(3);
         $this->assertDatabaseCount('movies', 3);
+    }
+
+    public function test_admins_can_view_specific_movie()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $movie = Movie::factory()->create();
+
+        $response = $this->getJson("/api/movies/{$movie->id}");
+
+        $response->assertStatus(200);
+        $response->assertJson([
+                    'data' => [
+                        'id'          => $movie->id,
+                        'title'        => $movie->title,
+                        'description'    => $movie->description,
+                    ]
+        ]);
+        $this->assertDatabaseCount('movies', 1);
     }
 }

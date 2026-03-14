@@ -315,9 +315,10 @@ Scheduler runs periodically to maintain system consistency.
 
 # 🧪 Testing
 
-The project includes comprehensive **feature tests**.
+The project includes comprehensive 
+## feature tests.
 
-Run tests:
+Run tests locally:
 
 ```bash
 php artisan test
@@ -332,6 +333,48 @@ Covered scenarios:
 * Refund processing
 * Webhook idempotency
 * Authorization rules
+
+## Continuous Integration (CI)
+
+This project uses GitHub Actions for Continuous Integration to ensure code quality and prevent regressions.
+
+Every push or pull request triggers an automated pipeline that:
+
+1. Installs PHP dependencies using Composer
+2. Sets up the Laravel environment
+3. Runs database migrations
+4. Executes the full automated test suite
+
+If any test fails, the CI pipeline will fail and the change should be fixed before merging.
+
+### CI Workflow
+
+Location of workflow configuration:
+
+```bash
+.github/workflows/tests.yml
+```
+### Pipeline Steps
+
+The CI pipeline performs the following steps:
+
+- Checkout repository
+- Setup PHP environment
+- Install dependencies
+- Prepare .env file
+- Run migrations
+- Execute PHPUnit tests
+
+### Example Workflow Trigger
+
+CI runs automatically when:
+
+- Code is pushed to supported branches
+- A Pull Request is opened or updated
+
+### CI Status
+
+You can view workflow runs in the Actions tab of the repository.
 
 ---
 

@@ -77,4 +77,28 @@ class MovieManagementTest extends TestCase
         $this->assertDatabaseHas('movies', ['title'  => $data['title']]);
         $this->assertDatabaseCount('movies', 1);
     }
+
+    public function test_only_admins_can_edit_a_movie()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $movie = Movie::factory()->create();
+        $movie->title = 'Updated Movie Title';
+
+        $response = $this->putJson("/api/movies/{$movie->id}", $movie->toArray());
+
+        $response->assertStatus(200);
+        $response->assertJson([
+                    'data' => [
+                        'id'    => $movie->id,
+                        'title' => 'Updated Movie Title',
+                    ]
+        ]);
+        $this->assertDatabaseHas('movies', [
+            'id'    => $movie->id,
+            'title' => 'Updated Movie Title'
+        ]);
+    }
 }

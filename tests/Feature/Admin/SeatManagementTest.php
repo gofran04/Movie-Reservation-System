@@ -36,4 +36,30 @@ class SeatManagementTest extends TestCase
         $response->assertJsonCount(2); // Ensure that 2 seats are returned for the hall as per the HallFactory definition
         $this->assertDatabaseCount('seats', 2); // Ensure that 2 seats are created for the hall as per the HallFactory definition
     }
+
+    public function test_admins_can_view_individual_seat_for_specific_hall(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin);
+
+        $hall = Hall::factory()->create();
+        $seatsId = $hall->seats()->first()->id;
+
+        $response = $this->getJson("/api/seats/{$seatsId}");
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'id'      => $seatsId,
+                'hall_id' => $hall->id,
+            ]
+        ]);
+        $this->assertDatabaseHas('seats', [
+            'id' => $seatsId,
+            'hall_id' => $hall->id
+        ]);
+
+    }
 }

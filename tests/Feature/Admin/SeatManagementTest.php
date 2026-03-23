@@ -90,4 +90,21 @@ class SeatManagementTest extends TestCase
             'status'  => 'out_of_service',
         ]);
     }
+
+    public function test_guests_cannot_manage_seats()
+    {
+        $hall = Hall::factory()->create();
+        $seatsId = $hall->seats()->first()->id;
+
+        // Guests cannot view seats
+        $this->getJson("/api/halls/{$hall->id}/seats")->assertStatus(401);
+
+        // Guests cannot view specific seat
+        $this->getJson("/api/seats/{$seatsId}")->assertStatus(401);
+
+        // Guests cannot edit specific seat
+        $this->putJson("/api/seats/{$seatsId}", [
+            'status' => 'out_of_service',
+        ])->assertStatus(401);
+    }
 }

@@ -123,7 +123,7 @@ class HallManagementTest extends TestCase
         $this->patchJson("/api/halls/{$hall->id}",$hall->toArray())->assertStatus(401);//update - Unauthenticated user
     }
 
-    public function test_unauthorized_users_cannot_manage_movies()
+    public function test_unauthorized_users_cannot_manage_seats()
     {
         $user = User::factory()->create();
         $this->actingAs($user);

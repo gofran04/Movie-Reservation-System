@@ -107,4 +107,24 @@ class SeatManagementTest extends TestCase
             'status' => 'out_of_service',
         ])->assertStatus(401);
     }
+
+    public function test_unauthorized_users_cannot_manage_seats()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $hall = Hall::factory()->create();
+        $seatsId = $hall->seats()->first()->id;
+
+        // Unauthorized users cannot view seats
+        $this->getJson("/api/halls/{$hall->id}/seats")->assertStatus(403);
+
+        // Unauthorized users cannot view specific seat
+        $this->getJson("/api/seats/{$seatsId}")->assertStatus(403);
+
+        // Unauthorized users cannot edit specific seat
+        $this->putJson("/api/seats/{$seatsId}", [
+            'status' => 'out_of_service',
+        ])->assertStatus(403);
+    }
 }

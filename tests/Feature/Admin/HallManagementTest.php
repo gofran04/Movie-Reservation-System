@@ -77,6 +77,8 @@ class HallManagementTest extends TestCase
         ]);
         $this->assertDatabaseHas('halls', ['name' => $data['name']]);
         $this->assertDatabaseCount('halls', 1);
+        $this->assertDatabaseHas('seats', ['hall_id' => Hall::first()->id]); // Ensure that seats are created for the hall
+        $this->assertDatabaseCount('seats', 2); // Ensure that 2 seats are created for the hall as per the HallFactory definition
     }
 
     public function test_only_admins_can_edit_a_hall()

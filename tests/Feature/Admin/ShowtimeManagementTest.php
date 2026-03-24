@@ -127,4 +127,18 @@ class ShowtimeManagementTest extends TestCase
         $this->assertSoftDeleted($showtime);
         $this->assertEquals(0, Showtime::count());
     }
+
+    public function test_only_admins_can_not_delete_already_started_showtime()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $showtime = Showtime::factory()->alreadyStarted()->create();
+        $response = $this->deleteJson("/api/showtimes/{$showtime->id}");
+
+        $response->assertStatus(403);
+        $this->assertNotSoftDeleted($showtime);
+        $this->assertEquals(1, Showtime::count());
+    }
 }

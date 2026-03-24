@@ -44,4 +44,23 @@ class ShowtimeFactory extends Factory
             ]);
         });
     }
+
+    // This method will created already started showtime with past start_time
+    public function alreadyStarted()
+    {
+        return $this->state(function () {
+            $movie = Movie::factory()->create();
+            $hall  = Hall::factory()->create();
+
+            $startTime = now()->subHours(4); // already started
+            $endTime   = $startTime->copy()->addMinutes($movie->duration_minutes);
+
+            return [
+                'movie_id'   => $movie->id,
+                'hall_id'    => $hall->id,
+                'start_time' => $startTime,
+                'end_time'   => $endTime,
+            ];
+        });
+    }
 }

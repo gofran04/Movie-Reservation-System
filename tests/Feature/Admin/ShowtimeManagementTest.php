@@ -68,7 +68,7 @@ class ShowtimeManagementTest extends TestCase
         $data = Showtime::factory()->make()->toArray();
         $data['start_time'] = Carbon::parse($data['start_time'])->format('Y-m-d H:i:s');
         $data['end_time']   = Carbon::parse($data['end_time'])->format('Y-m-d H:i:s');
-        
+
         $data['prices'] = [
             'regular' => 30,
             'vip'     => 60,
@@ -87,5 +87,29 @@ class ShowtimeManagementTest extends TestCase
         ]);
         $this->assertDatabaseHas('showtimes', ['movie_id' => $data['movie_id'],'start_time' => $data['start_time']]);
         $this->assertDatabaseCount('showtimes', 1);
+    }
+
+    public function test_only_admins_can_edit_a_showtime()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $showtime = Showtime::factory()->create();
+        $showtime->start_time = Carbon::parse($showtime->start_time)->addDays(1)->format('Y-m-d H:i:s');
+
+        $response = $this->putJson("/api/showtimes/{$showtime->id}", $showtime->toArray());
+        $response->assertStatus(200);
+        $response->assertJson([
+                    'data' => [
+                        'id'         => $showtime->id,
+                        'start_time' => $showtime->start_time,
+                        'end_time'   => Carbon::parse($showtime->start_time)->addMinutes($showtime->movie->duration_minutes)->format('Y-m-d H:i:s'),
+                    ]
+        ]);
+        $this->assertDatabaseHas('showtimes', [
+            'id'         => $showtime->id,
+            'start_time' => $showtime->start_time
+            ]);
     }
 }

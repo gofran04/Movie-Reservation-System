@@ -173,4 +173,28 @@ class ShowtimeManagementTest extends TestCase
         $this->patchJson("/api/showtimes/{$showtime->id}",$showtime->toArray())->assertStatus(401);//update - Unauthenticated user
         $this->deleteJson("/api/showtimes/{$showtime->id}")->assertStatus(401);//destroy - Unauthenticated user
     }
+
+    public function test_unauthorized_users_cannot_manage_showtimes()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $data = Showtime::factory()->make()->toArray();
+        $data['start_time'] = Carbon::parse($data['start_time'])->format('Y-m-d H:i:s');
+        $data['end_time']   = Carbon::parse($data['end_time'])->format('Y-m-d H:i:s');
+
+        $data['prices'] = [
+            'regular' => 30,
+            'vip'     => 60,
+        ];
+
+        $showtime = Showtime::factory()->create();
+        $showtime->start_time = Carbon::parse($showtime->start_time)->addDays(1)->format('Y-m-d H:i:s');
+
+        $this->getJson('/api/showtimes')->assertForbidden(); //index - Unauthorized user
+        $this->getJson("/api/showtimes/{$showtime->id}")->assertForbidden(); //show - Unauthorized user
+        $this->postJson('/api/showtimes', $data)->assertForbidden(); //store - Unauthorized user
+        $this->patchJson("/api/showtimes/{$showtime->id}",$showtime->toArray())->assertForbidden();//update - Unauthorized user
+        $this->deleteJson("/api/showtimes/{$showtime->id}")->assertForbidden();//destroy - Unauthorized user
+    }
 }

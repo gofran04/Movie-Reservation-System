@@ -112,4 +112,19 @@ class ShowtimeManagementTest extends TestCase
             'start_time' => $showtime->start_time
             ]);
     }
+
+    public function test_only_admins_can_delete_not_started_showtime()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $showtime = Showtime::factory()->create();
+
+        $response = $this->deleteJson("/api/showtimes/{$showtime->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted($showtime);
+        $this->assertEquals(0, Showtime::count());
+    }
 }

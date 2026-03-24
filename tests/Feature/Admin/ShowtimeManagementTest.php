@@ -8,6 +8,7 @@ use Database\Seeders\CinemaSeeder;
 use Database\Seeders\PermissionsSeeder;
 use App\Models\Showtime;
 use App\Models\User;
+use Carbon\Carbon;
 
 class ShowtimeManagementTest extends TestCase
 {
@@ -58,4 +59,33 @@ class ShowtimeManagementTest extends TestCase
         $this->assertDatabaseCount('showtimes', 1);
     }
 
+    public function test_only_admins_can_create_a_showtime()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $data = Showtime::factory()->make()->toArray();
+        $data['start_time'] = Carbon::parse($data['start_time'])->format('Y-m-d H:i:s');
+        $data['end_time']   = Carbon::parse($data['end_time'])->format('Y-m-d H:i:s');
+        
+        $data['prices'] = [
+            'regular' => 30,
+            'vip'     => 60,
+        ];
+
+        $response = $this->postJson("/api/showtimes",$data);
+
+        $response->assertStatus(201);
+        $response->assertJson([
+                    'data' => [
+                        'movie_id'   => $data['movie_id'],
+                        'hall_id'    => $data['hall_id'],
+                        'start_time' => $data['start_time'],
+                        'end_time'   => $data['end_time'],
+                    ]
+        ]);
+        $this->assertDatabaseHas('showtimes', ['movie_id' => $data['movie_id'],'start_time' => $data['start_time']]);
+        $this->assertDatabaseCount('showtimes', 1);
+    }
 }

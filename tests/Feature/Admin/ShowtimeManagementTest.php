@@ -22,7 +22,7 @@ class ShowtimeManagementTest extends TestCase
          ]);
     }
 
-    public function test__only_admins_can_view_all_showtimes()
+    public function test_only_admins_can_view_all_showtimes()
     {
         $admin = User::factory()->create();
         $admin->assignRole('admin');
@@ -37,5 +37,25 @@ class ShowtimeManagementTest extends TestCase
         $this->assertDatabaseCount('showtimes', 3);
     }
 
+    public function test_only_admins_can_view_specific_showtime()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $showtime = Showtime::factory()->create();
+
+        $response = $this->getJson("/api/showtimes/{$showtime->id}");
+
+        $response->assertStatus(200);
+        $response->assertJson([
+                    'data' => [
+                        'id'       => $showtime->id,
+                        'movie_id' => $showtime->movie_id,
+                        'hall_id'  => $showtime->hall_id,
+                    ]
+        ]);
+        $this->assertDatabaseCount('showtimes', 1);
+    }
 
 }

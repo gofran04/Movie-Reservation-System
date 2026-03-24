@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Database\Seeders\CinemaSeeder;
 use Database\Seeders\PermissionsSeeder;
+use App\Models\Reservation;
 use App\Models\Showtime;
 use App\Models\User;
 use Carbon\Carbon;
@@ -135,6 +136,24 @@ class ShowtimeManagementTest extends TestCase
         $this->actingAs($admin);
 
         $showtime = Showtime::factory()->alreadyStarted()->create();
+        $response = $this->deleteJson("/api/showtimes/{$showtime->id}");
+
+        $response->assertStatus(403);
+        $this->assertNotSoftDeleted($showtime);
+        $this->assertEquals(1, Showtime::count());
+    }
+
+    public function test_only_admins_can_not_delete_reserved_showtime()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
+        $showtime = Showtime::factory()->create();
+        Reservation::factory()->confirmed()->create([
+            'showtime_id' => $showtime->id,
+        ]);
+        
         $response = $this->deleteJson("/api/showtimes/{$showtime->id}");
 
         $response->assertStatus(403);

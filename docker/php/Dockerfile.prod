@@ -23,8 +23,6 @@ RUN mkdir -p storage/framework/views \
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-COPY docker/php/entrypoint.sh /entrypoint.sh
-
 RUN chmod +x /var/www/docker/php/entrypoint.sh
 
 ENTRYPOINT ["docker/php/entrypoint.sh"]

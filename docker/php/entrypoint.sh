@@ -6,7 +6,6 @@ echo "Starting Laravel container..."
 
 # (optional but safe in dev/prod small setups)
 php artisan migrate --force
-php artisan db:seed --force
 
 echo "Migrations and seeding done."
 

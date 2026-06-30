@@ -26,3 +26,5 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod +x /var/www/docker/php/entrypoint.sh
 
 ENTRYPOINT ["docker/php/entrypoint.sh"]
+
+CMD ["php-fpm"]

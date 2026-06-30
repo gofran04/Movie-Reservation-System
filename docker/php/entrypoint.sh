@@ -12,5 +12,5 @@ echo "Migrations and seeding done."
 # Create symbolic link for storage , (|| true) to ignore if it already exists
 php artisan storage:link || true
 
-# start PHP-FPM (IMPORTANT FINAL STEP)
-exec php-fpm
+# start PHP-FPM (IMPORTANT FINAL STEP, this exec$@ will becomes "exec php-fpm" )
+exec "$@"

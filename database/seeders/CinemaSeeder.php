@@ -18,6 +18,7 @@ class CinemaSeeder extends Seeder
             'location'        => 'Downtown',
         ];
 
-        Cinema::create($cinema_attributes);
+        //idomptent seeding to avoid duplicates
+        Cinema::firstOrCreate($cinema_attributes);
     }
 }

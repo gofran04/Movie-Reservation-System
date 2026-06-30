@@ -1,0 +1,99 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.prod
+    container_name: movie_app
+    working_dir: /var/www
+    volumes:
+      - laravel_public:/var/www/public
+      - laravel_storage:/var/www/storage/app/public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: movie_app_image
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_KEY: base64:RGMa0xgDit8qy+UHhJrcEQ4seIH2Bg9pALA7FcSN2x4=
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: movie_reservation
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+      REDIS_HOST: redis
+      QUEUE_CONNECTION: redis
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: movie_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - laravel_public:/var/www/public
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17
+    container_name: movie_postgres
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: movie_reservation
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U laravel"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: movie_redis
+    ports:
+      - "6377:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  worker:
+    image: movie_app_image
+    container_name: movie_worker
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_KEY: base64:RGMa0xgDit8qy+UHhJrcEQ4seIH2Bg9pALA7FcSN2x4=
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: movie_reservation
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+      REDIS_HOST: redis
+      QUEUE_CONNECTION: redis
+    restart: unless-stopped
+
+
+volumes:
+    postgres_data:
+    laravel_public:
+    laravel_storage:

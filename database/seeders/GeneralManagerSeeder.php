@@ -29,12 +29,26 @@ class GeneralManagerSeeder extends Seeder
             'role'              => 'admin',
 
         ];
+        
 
-        $generalManagerUser = User::create($general_manager_attributes);
-        $generalManagerRole = Role::create(['guard_name' => 'sanctum','name' => 'General-Manager']);
+        //idomptent seeding to avoid duplicates
+        $generalManagerUser = User::firstOrCreate(
+            ['email' => 'GeneralManager@mail.com'], // unique identifier for the user
+            [
+                'name' => 'TheGeneralManager',
+                'phone' => '011111111',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
+        $generalManagerRole = Role::firstOrCreate(['guard_name' => 'sanctum','name' => 'General-Manager']);
+        
         $permissions = Permission::where('guard_name', 'sanctum')->get();
-        $generalManagerRole->syncPermissions($permissions);        
-        $generalManagerUser->assignRole($generalManagerRole);
 
+        $generalManagerRole->syncPermissions($permissions);  
+
+        if (!$generalManagerUser->hasRole($generalManagerRole)) {
+            $generalManagerUser->assignRole($generalManagerRole);
+        }      
     }
 }

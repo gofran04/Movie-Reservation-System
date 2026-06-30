@@ -72,13 +72,15 @@ class PermissionsSeeder extends Seeder
 
         foreach ($permissions as $permission) 
         {
-            Permission::create(['name' => $permission]);
+            // idomptent seeding to avoid duplicates
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-       $client = Role::create(['guard_name' => 'sanctum','name' => 'client']);
+        // idomptent seeding to avoid duplicates
+       $client = Role::firstOrCreate(['guard_name' => 'sanctum','name' => 'client']);
        $client->syncPermissions([
             'edit-profile',
             'view-profile',
@@ -89,7 +91,8 @@ class PermissionsSeeder extends Seeder
             'pay-own-reservation',
        ]);
 
-       $supervisor =  Role::create(['guard_name' => 'sanctum','name' => 'admin']);
+        // idomptent seeding to avoid duplicates
+       $supervisor =  Role::firstOrCreate(['guard_name' => 'sanctum','name' => 'admin']);
        $supervisor->syncPermissions([
             'edit-user',
             'view-user',

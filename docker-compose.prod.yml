@@ -50,7 +50,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U laravel"]
+      test: ["CMD-SHELL", "pg_isready -U laravel -d movie_reservation"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -72,6 +72,7 @@ services:
     image: movie_app_image
     container_name: movie_worker
     working_dir: /var/www
+    entrypoint: []
     command: php artisan queue:work redis --sleep=3 --tries=3
     depends_on:
       postgres:
@@ -91,7 +92,7 @@ services:
       REDIS_HOST: redis
       QUEUE_CONNECTION: redis
     restart: unless-stopped
-
+    
 
 volumes:
     postgres_data:

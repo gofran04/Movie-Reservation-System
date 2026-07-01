@@ -7,7 +7,7 @@ echo "Starting Laravel container..."
 # (optional but safe in dev/prod small setups)
 php artisan migrate --force --ansi -vvv
 
-echo "Migrations and seeding done."
+echo "Migrations done."
 
 # Create symbolic link for storage , (|| true) to ignore if it already exists
 php artisan storage:link || true

@@ -23,7 +23,9 @@ RUN mkdir -p storage/framework/views \
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-RUN chmod +x /var/www/docker/php/entrypoint.sh
+RUN chmod +x /var/www/docker/php/entrypoint.sh \ 
+            /var/www/docker/php/worker-entrypoint.sh 
+
 
 ENTRYPOINT ["docker/php/entrypoint.sh"]
 

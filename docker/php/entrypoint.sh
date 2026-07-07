@@ -5,7 +5,7 @@ set -e
 echo "Starting Laravel container..."
 
 # (optional but safe in dev/prod small setups)
-php artisan migrate --force --ansi -vvv
+php artisan migrate --force
 
 echo "Migrations done."
 

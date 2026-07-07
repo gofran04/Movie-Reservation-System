@@ -13,17 +13,17 @@ services:
         condition: service_healthy
     image: movie_app_image
     environment:
-      APP_ENV: production
-      APP_DEBUG: false
-      APP_KEY: base64:RGMa0xgDit8qy+UHhJrcEQ4seIH2Bg9pALA7FcSN2x4=
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: movie_reservation
-      DB_USERNAME: laravel
-      DB_PASSWORD: secret
-      REDIS_HOST: redis
-      QUEUE_CONNECTION: redis
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: ${DB_CONNECTION}
+      REDIS_HOST: ${REDIS_HOST}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION}
     restart: unless-stopped
 
   nginx:
@@ -72,25 +72,24 @@ services:
     image: movie_app_image
     container_name: movie_worker
     working_dir: /var/www
-    entrypoint: []
-    command: php artisan queue:work redis --sleep=3 --tries=3
+    entrypoint: ["/var/www/docker/php/worker-entrypoint.sh"]
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      APP_ENV: production
-      APP_DEBUG: false
-      APP_KEY: base64:RGMa0xgDit8qy+UHhJrcEQ4seIH2Bg9pALA7FcSN2x4=
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: movie_reservation
-      DB_USERNAME: laravel
-      DB_PASSWORD: secret
-      REDIS_HOST: redis
-      QUEUE_CONNECTION: redis
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION}
     restart: unless-stopped
     
 

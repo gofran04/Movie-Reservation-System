@@ -4,10 +4,8 @@ set -e
 
 echo "Starting Laravel container..."
 
-# (optional but safe in dev/prod small setups)
-php artisan migrate --force
-
-echo "Migrations done."
+php artisan migrate --force || echo "Migration failed"
+echo "Container kept alive for debugging."
 
 # Create symbolic link for storage , (|| true) to ignore if it already exists
 php artisan storage:link || true

@@ -46,8 +46,6 @@ class PermissionsSeeder extends Seeder
             'edit-seat',
             'delete-seat',
 
-            'view-all-movies',
-            'view-movie',
             'create-movie',
             'edit-movie',
             'delete-movie',
@@ -104,8 +102,6 @@ class PermissionsSeeder extends Seeder
             'edit-seat',
             'delete-seat',
 
-            'view-all-movies',
-            'view-movie',
             'create-movie',
             'edit-movie',
             'delete-movie',

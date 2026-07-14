@@ -23,6 +23,7 @@ use App\Http\Controllers\API\WebhookController;
 Route::post('/login', [AuthenticationController::class, 'login']);
 Route::post('/register', [AuthenticationController::class, 'register']);
 
+Route::get('/movies', [MovieController::class, 'index']);
 Route::get('/movies/{movie}', [MovieController::class, 'show']);
 
 Route::get('/cinemas', [CinemaController::class, 'index']);

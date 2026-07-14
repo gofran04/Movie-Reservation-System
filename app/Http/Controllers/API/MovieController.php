@@ -14,7 +14,6 @@ class MovieController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny',Movie::class);
         return MovieResource::collection(MoviesCollection::collection($request))->collection;
     }
 
@@ -32,7 +31,6 @@ class MovieController extends Controller
 
     public function show(Movie $movie)
     {
-        $this->authorize('view', $movie);
         return new MovieResource($movie);
     }
 

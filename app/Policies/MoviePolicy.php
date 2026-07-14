@@ -9,19 +9,19 @@ use Illuminate\Auth\Access\Response;
 class MoviePolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Allow any user to view the list of movies.
      */
-    public function viewAny(User $authUser): bool
+    public function viewAny(?User $authUser): bool
     {
-        return $authUser->can('view-all-movies');
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $authUser, Movie $movie): bool
+    public function view(?User $authUser, Movie $movie): bool
     {
-        return $authUser->can('view-movie');
+        return true;
     }
 
     /**

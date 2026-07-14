@@ -35,7 +35,6 @@ class PermissionsSeeder extends Seeder
             'suspend-user',
             'activate-user',
 
-            'view-cinema',
             'edit-cinema',
 
             'create-hall',
@@ -98,7 +97,6 @@ class PermissionsSeeder extends Seeder
             'view-user',
             'view-all-users',
 
-            'view-cinema',
             'edit-cinema',
 
             'create-hall',

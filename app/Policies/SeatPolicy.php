@@ -9,19 +9,19 @@ use Illuminate\Auth\Access\Response;
 class SeatPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Allow any user to view seats, even if they are not authenticated.
      */
-    public function viewAny(User $authUser): bool
+    public function viewAny(?User $authUser): bool
     {
-        return $authUser->can('view-all-seats');
+        return true;
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Allow any user to view a specific seat, even if they are not authenticated.
      */
-    public function view(User $authUser, Seat $seat): bool
+    public function view(?User $authUser, Seat $seat): bool
     {
-        return $authUser->can('view-seat', $seat);
+        return true;
     }
 
     /**

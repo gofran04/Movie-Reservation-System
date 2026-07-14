@@ -43,8 +43,6 @@ class PermissionsSeeder extends Seeder
             'view-all-halls',
             'delete-hall',
 
-            'view-all-seats',
-            'view-seat',
             'edit-seat',
             'delete-seat',
 
@@ -103,8 +101,6 @@ class PermissionsSeeder extends Seeder
             'view-all-halls',
             'delete-hall',
 
-            'view-all-seats',
-            'view-seat',
             'edit-seat',
             'delete-seat',
 

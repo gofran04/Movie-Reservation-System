@@ -33,6 +33,7 @@ Route::get('/showtimes/{showtime}', [ShowtimeController::class, 'show']);
 Route::get('/showtimes/{showtime}/available-seats', [ShowtimeSeatController::class, 'availableSeats']);
 
 Route::get('/halls/{hall}/seats', [SeatController::class, 'index']);
+Route::get('/seats/{seat}', [SeatController::class, 'show']);
 
 Route::post('/stripe/webhook', [WebhookController::class, 'handle']);
 
@@ -65,7 +66,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('halls', HallController::class)->except(['index', 'show', 'destroy']);
 
     // Seats
-    Route::get('/seats/{seat}', [SeatController::class, 'show']);
     Route::put('/seats/{seat}', [SeatController::class, 'update']);
 
     // Showtimes

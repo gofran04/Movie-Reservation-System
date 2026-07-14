@@ -12,8 +12,6 @@ class CinemaController extends Controller
 
     public function show(Cinema $cinema)
     {
-        $this->authorize('view', $cinema);
-
         return new CinemaResource($cinema);
     }
 

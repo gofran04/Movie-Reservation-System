@@ -9,19 +9,19 @@ use Illuminate\Auth\Access\Response;
 class ShowtimePolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Allow any user to view showtimes, even if they are not authenticated.
      */
-    public function viewAny(User $auhtUser): bool
+    public function viewAny(?User $auhtUser): bool
     {
-        return $auhtUser->can('view-all-showtimes');
+        return true;
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Allow any user to view a specific showtime, even if they are not authenticated.
      */
-    public function view(User $auhtUser, Showtime $showtime): bool
+    public function view(?User $auhtUser, Showtime $showtime): bool
     {
-        return $auhtUser->can('view-showtime');
+        return true;
     }
 
     /**

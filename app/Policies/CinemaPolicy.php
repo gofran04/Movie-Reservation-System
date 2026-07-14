@@ -8,6 +8,11 @@ use Illuminate\Auth\Access\Response;
 
 class CinemaPolicy
 {
+    public function view(?User $authUser, Cinema $cinema): bool
+    {
+        return true;
+    }
+
     public function update(User $authUser, Cinema $cinema): bool
     {
         return $authUser->can('edit-cinema');

@@ -17,8 +17,6 @@ class ShowtimeController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Showtime::class);
-
         return ShowtimeResource::collection(ShowtimesCollection::collection($request))->collection;
     }
 
@@ -50,8 +48,6 @@ class ShowtimeController extends Controller
 
     public function show(Showtime $showtime)
     {
-        $this->authorize('view', $showtime);
-
         return new ShowtimeResource($showtime);
     }
 

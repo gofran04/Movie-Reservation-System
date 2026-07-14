@@ -54,8 +54,6 @@ class PermissionsSeeder extends Seeder
             'edit-movie',
             'delete-movie',
 
-            'view-all-showtimes',
-            'view-showtime',
             'create-showtime',
             'edit-showtime',
             'delete-showtime',
@@ -116,8 +114,6 @@ class PermissionsSeeder extends Seeder
             'edit-movie',
             'delete-movie',
 
-            'view-all-showtimes',
-            'view-showtime',
             'create-showtime',
             'edit-showtime',
             'delete-showtime',

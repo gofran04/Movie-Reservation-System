@@ -64,7 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/cinemas/{cinema}', [CinemaController::class, 'update']);
 
     // Halls
-    Route::resource('halls', HallController::class)->except(['index', 'show', 'destroy']);
+    Route::resource('halls', HallController::class)->except(['destroy']);
 
     // Seats
     Route::put('/seats/{seat}', [SeatController::class, 'update']);

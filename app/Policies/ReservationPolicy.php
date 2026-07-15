@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Reservation;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class ReservationPolicy
+{
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $authUser): bool
+    {
+        // Admins & general manager can see all
+        if ($authUser->can('view-all-reservations')) {
+            return true;
+        }
+
+        // clients can see their own list
+        return $authUser->can('view-reservation');
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $authUser, Reservation $reservation): bool
+    {
+        // Admins & managers can view any reservation
+        if ($authUser->can('view-all-reservations')) {
+            return true;
+        }
+
+        // Regular user: only their own reservation
+        return $authUser->can('view-reservation') && $authUser->id === $reservation->user_id;
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $authUser): bool
+    {
+        return $authUser->can('create-reservation');
+    }
+
+    /**
+     * Determine whether the user can cancel models.
+     */
+    public function cancel(User $authUser, Reservation $reservation)
+    {
+        if ($reservation->status === 'cancelled') {
+            return Response::deny('Reservation is already cancelled.');
+        }
+
+        if (($authUser->can('cancel-any-reservation')) && ($reservation->showtime->start_time > now())) {
+            return true;
+        }
+
+        return $authUser->can('cancel-own-reservation') 
+        && $authUser->id === $reservation->user_id
+        && $reservation->showtime->start_time > now(); // can't cancel past reservations
+    }
+
+    public function pay(User $authUser, Reservation $reservation)
+    {
+        if ($reservation->status !== 'pending') {
+            return Response::deny('Only pending reservations can be paid.');
+        }
+
+        if ($reservation->expires_at < now()) {
+            return Response::deny('Reservation expired.');
+        }
+
+        if ($authUser->can('pay-any-reservation')) {
+            return true;
+        }
+
+        return $authUser->can('pay-own-reservation')
+            && $authUser->id === $reservation->user_id;
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Reservation $reservation): bool
+    {
+        return false;
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Reservation $reservation): bool
+    {
+        return false;
+    }
+}

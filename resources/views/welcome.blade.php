@@ -130,7 +130,7 @@
             API Health
         </a>
 
-        <a class="btn" href="https://github.com/YOUR_USERNAME/movie-reservation-system" target="_blank">
+        <a class="btn" href="https://github.com/gofran04/Movie-Reservation-System/tree/dev" target="_blank">
             GitHub
         </a>
 

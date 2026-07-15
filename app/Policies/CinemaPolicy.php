@@ -8,9 +8,9 @@ use Illuminate\Auth\Access\Response;
 
 class CinemaPolicy
 {
-    public function view(User $authUser, Cinema $cinema): bool
+    public function view(?User $authUser, Cinema $cinema): bool
     {
-        return $authUser->can('view-cinema');
+        return true;
     }
 
     public function update(User $authUser, Cinema $cinema): bool

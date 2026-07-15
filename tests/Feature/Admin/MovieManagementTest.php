@@ -122,8 +122,6 @@ class MovieManagementTest extends TestCase
         $movie = Movie::factory()->create();
         $movie->title = 'Updated Movie Title';
 
-        $this->getJson('/api/movies')->assertStatus(401); //index - Unauthenticated user
-        $this->getJson("/api/movies/{$movie->id}")->assertStatus(401); //show - Unauthenticated user
         $this->postJson('/api/movies', $movie->toArray())->assertStatus(401); //store - Unauthenticated user
         $this->patchJson("/api/movies/{$movie->id}",$movie->toArray())->assertStatus(401);//update - Unauthenticated user
         $this->deleteJson("/api/movies/{$movie->id}")->assertStatus(401);//destroy - Unauthenticated user
@@ -137,8 +135,6 @@ class MovieManagementTest extends TestCase
         $movie = Movie::factory()->create();
         $movie->title = 'Updated Movie Title';
 
-        $this->getJson('/api/movies')->assertForbidden(); //index - Unauthorized user
-        $this->getJson("/api/movies/{$movie->id}")->assertForbidden(); //show - Unauthorized user
         $this->postJson('/api/movies', $movie->toArray())->assertForbidden(); //store - Unauthorized user
         $this->patchJson("/api/movies/{$movie->id}",$movie->toArray())->assertForbidden();//update - Unauthorized user
         $this->deleteJson("/api/movies/{$movie->id}")->assertForbidden();//destroy - Unauthorized user

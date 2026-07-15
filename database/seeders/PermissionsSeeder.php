@@ -35,7 +35,6 @@ class PermissionsSeeder extends Seeder
             'suspend-user',
             'activate-user',
 
-            'view-cinema',
             'edit-cinema',
 
             'create-hall',
@@ -44,19 +43,13 @@ class PermissionsSeeder extends Seeder
             'view-all-halls',
             'delete-hall',
 
-            'view-all-seats',
-            'view-seat',
             'edit-seat',
             'delete-seat',
 
-            'view-all-movies',
-            'view-movie',
             'create-movie',
             'edit-movie',
             'delete-movie',
 
-            'view-all-showtimes',
-            'view-showtime',
             'create-showtime',
             'edit-showtime',
             'delete-showtime',
@@ -72,13 +65,15 @@ class PermissionsSeeder extends Seeder
 
         foreach ($permissions as $permission) 
         {
-            Permission::create(['name' => $permission]);
+            // idomptent seeding to avoid duplicates
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-       $client = Role::create(['guard_name' => 'sanctum','name' => 'client']);
+        // idomptent seeding to avoid duplicates
+       $client = Role::firstOrCreate(['guard_name' => 'sanctum','name' => 'client']);
        $client->syncPermissions([
             'edit-profile',
             'view-profile',
@@ -89,13 +84,13 @@ class PermissionsSeeder extends Seeder
             'pay-own-reservation',
        ]);
 
-       $supervisor =  Role::create(['guard_name' => 'sanctum','name' => 'admin']);
+        // idomptent seeding to avoid duplicates
+       $supervisor =  Role::firstOrCreate(['guard_name' => 'sanctum','name' => 'admin']);
        $supervisor->syncPermissions([
             'edit-user',
             'view-user',
             'view-all-users',
 
-            'view-cinema',
             'edit-cinema',
 
             'create-hall',
@@ -104,19 +99,13 @@ class PermissionsSeeder extends Seeder
             'view-all-halls',
             'delete-hall',
 
-            'view-all-seats',
-            'view-seat',
             'edit-seat',
             'delete-seat',
 
-            'view-all-movies',
-            'view-movie',
             'create-movie',
             'edit-movie',
             'delete-movie',
 
-            'view-all-showtimes',
-            'view-showtime',
             'create-showtime',
             'edit-showtime',
             'delete-showtime',

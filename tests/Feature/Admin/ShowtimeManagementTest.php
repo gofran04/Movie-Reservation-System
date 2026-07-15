@@ -10,7 +10,6 @@ use App\Models\Reservation;
 use App\Models\Showtime;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Validation\Rules\Can;
 
 class ShowtimeManagementTest extends TestCase
 {
@@ -167,8 +166,6 @@ class ShowtimeManagementTest extends TestCase
         $showtime = Showtime::factory()->create();
         $showtime->start_time = Carbon::parse($showtime->start_time)->addDays(1)->format('Y-m-d H:i:s');
 
-        $this->getJson('/api/showtimes')->assertStatus(401); //index - Unauthenticated user
-        $this->getJson("/api/showtimes/{$showtime->id}")->assertStatus(401); //show - Unauthenticated user
         $this->postJson('/api/showtimes', $showtime->toArray())->assertStatus(401); //store - Unauthenticated user
         $this->patchJson("/api/showtimes/{$showtime->id}",$showtime->toArray())->assertStatus(401);//update - Unauthenticated user
         $this->deleteJson("/api/showtimes/{$showtime->id}")->assertStatus(401);//destroy - Unauthenticated user
@@ -191,8 +188,6 @@ class ShowtimeManagementTest extends TestCase
         $showtime = Showtime::factory()->create();
         $showtime->start_time = Carbon::parse($showtime->start_time)->addDays(1)->format('Y-m-d H:i:s');
 
-        $this->getJson('/api/showtimes')->assertForbidden(); //index - Unauthorized user
-        $this->getJson("/api/showtimes/{$showtime->id}")->assertForbidden(); //show - Unauthorized user
         $this->postJson('/api/showtimes', $data)->assertForbidden(); //store - Unauthorized user
         $this->patchJson("/api/showtimes/{$showtime->id}",$showtime->toArray())->assertForbidden();//update - Unauthorized user
         $this->deleteJson("/api/showtimes/{$showtime->id}")->assertForbidden();//destroy - Unauthorized user

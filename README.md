@@ -20,7 +20,9 @@
 - [Scheduled-Jobs](#-scheduled-jobs)
 - [Testing](#-testing)
 - [Security-Considerations](#-security-considerations)
-- [Future-Improvements](#-future-improvements)
+- [Docker](#-docker)
+- [Deployment](#-deployment)
+
 
 
 # 🚀 Project Overview
@@ -94,14 +96,18 @@ Authorization rules ensure users can only access their own reservations and paym
 
 # 🧰 Tech Stack
 
-* **PHP 8**
-* **Laravel 12**
-* **PostgreSQL**
-* **Stripe API**
-* **Laravel Queues**
-* **Laravel Scheduler**
-* **PHPUnit Feature Testing**
-
+* PHP 8.3
+* Laravel 12
+* PostgreSQL (Neon)
+* Redis
+* Stripe API
+* Docker & Docker Compose
+* Nginx
+* Render
+* Laravel Sanctum
+* Laravel Queues
+* Laravel Scheduler
+* PHPUnit Feature Testing
 ---
 
 # 🗄 Database Design
@@ -134,6 +140,12 @@ Install dependencies:
 
 ```bash
 composer install
+```
+
+Or run the application using Docker:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
 ```
 
 Create environment file:
@@ -187,24 +199,45 @@ php artisan db:seed
 
 # ▶ Running the Application
 
-Start the development server:
+## Local Development
+
+Start the Laravel development server:
 
 ```bash
 php artisan serve
 ```
 
-Start queue worker:
+Start the queue worker:
 
 ```bash
 php artisan queue:work
 ```
 
-Run scheduled jobs locally:
+Run scheduled tasks:
 
 ```bash
 php artisan schedule:work
 ```
 
+## Docker
+
+Build and start all services:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+Run the application in detached mode:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Stop containers:
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
 ---
 
 # 📡 API Endpoints
@@ -391,12 +424,81 @@ You can view workflow runs in the Actions tab of the repository.
 
 ---
 
-# 🧭 Future Improvements
+# 🐳 Docker
 
-* Admin dashboard
-* Seat map visualization
-* Email notifications
-* Reservation reminders
-* Advanced reporting
-* Distributed queue workers
+The application is fully containerized for local development and production deployment.
 
+## Services
+
+The Docker environment includes:
+
+| Service | Purpose |
+|----------|---------|
+| Laravel App | Main application |
+| Nginx | Reverse proxy |
+| PostgreSQL | Database |
+| Redis | Queue & Cache |
+| Queue Worker | Processes queued jobs |
+
+## Build
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+## Run
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+## Stop
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+Laravel automatically performs:
+
+- Database migrations
+- Storage symlink creation
+
+during container startup through the application entrypoint.
+
+---
+
+# 📦 Deployment
+
+The application is deployed on **Render** using Docker.
+
+Production services include:
+
+- **Render** — Application hosting
+- **Neon PostgreSQL** — Managed PostgreSQL database
+- **Stripe** — Payment processing
+
+## Deployment Flow
+
+1. Push code to GitHub
+2. Render automatically builds the Docker image
+3. Application starts
+4. Database migrations execute automatically
+5. Storage link is created automatically
+6. Laravel application starts serving requests
+
+The production deployment uses environment variables for all sensitive configuration including:
+
+- Application key
+- Database credentials
+- Stripe credentials
+- Queue configuration
+
+No secrets are committed to the repository.
+
+---
+
+# 🌐 Live Demo
+
+Application:
+
+https://movie-reservation-system-u6dl.onrender.com

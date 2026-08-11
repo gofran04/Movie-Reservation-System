@@ -41,4 +41,7 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'cron' => [
+        'secret' => env('CRON_SECRET'),
+    ],
 ];

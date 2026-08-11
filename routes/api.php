@@ -13,6 +13,8 @@ use App\Http\Controllers\API\ShowtimeSeatController;
 use App\Http\Controllers\API\ReservationCancellationController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\WebhookController;
+use App\Http\Controllers\Internal\CleanupExpiredReservationsController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -82,3 +84,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Payments
     Route::post('/payments/{reservation}', [PaymentController::class, 'pay']);
 });
+
+Route::post('/internal/cron/cleanup-expired',CleanupExpiredReservationsController::class);

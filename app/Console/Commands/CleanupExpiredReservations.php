@@ -12,7 +12,9 @@ class CleanupExpiredReservations extends Command
 
     public function handle(): int
     {
-        CleanupExpiredReservationsJob::dispatch();
+        // CleanupExpiredReservationsJob::dispatch();
+        // For deplyment,use dispatchSync to run the job immediately in the current process, cuz Render does not support free queue workers,so we will use dispatchSync to run the job immediately in the current process.
+        CleanupExpiredReservationsJob::dispatchSync();
 
         $this->info('Cleanup job dispatched successfully.');
 

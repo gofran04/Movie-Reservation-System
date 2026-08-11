@@ -13,6 +13,8 @@ use App\Http\Controllers\API\ShowtimeSeatController;
 use App\Http\Controllers\API\ReservationCancellationController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\WebhookController;
+use App\Http\Controllers\Internal\CleanupExpiredReservationsController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +39,8 @@ Route::get('/halls/{hall}/seats', [SeatController::class, 'index']);
 Route::get('/seats/{seat}', [SeatController::class, 'show']);
 
 Route::post('/stripe/webhook', [WebhookController::class, 'handle']);
+
+Route::post('/internal/cron/cleanup-expired',CleanupExpiredReservationsController::class);
 
 /*
 |--------------------------------------------------------------------------

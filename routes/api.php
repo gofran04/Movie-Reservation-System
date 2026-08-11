@@ -40,6 +40,8 @@ Route::get('/seats/{seat}', [SeatController::class, 'show']);
 
 Route::post('/stripe/webhook', [WebhookController::class, 'handle']);
 
+Route::post('/internal/cron/cleanup-expired',CleanupExpiredReservationsController::class);
+
 /*
 |--------------------------------------------------------------------------
 | Protected Routes
@@ -84,5 +86,3 @@ Route::middleware('auth:sanctum')->group(function () {
     // Payments
     Route::post('/payments/{reservation}', [PaymentController::class, 'pay']);
 });
-
-Route::post('/internal/cron/cleanup-expired',CleanupExpiredReservationsController::class);

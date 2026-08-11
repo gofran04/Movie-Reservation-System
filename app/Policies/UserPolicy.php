@@ -53,7 +53,7 @@ class UserPolicy
 
     public function activate(User $authUser, User $targetUser)
     {
-        if ($targetUser->status === 'suspended') {
+        if ($targetUser->status === 'active') {
             return Response::deny('User is already activated.');
         }
         return $authUser->can('activate-user') && $targetUser->status !== 'active' 

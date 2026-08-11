@@ -333,20 +333,49 @@ Webhook handlers ensure **idempotent processing** to prevent duplicate state upd
 
 # ⏱ Scheduled Jobs
 
-Expired reservations are automatically cleaned up.
+The application automatically cleans up expired reservations and releases their reserved seats.
 
-Command:
+## Cleanup Command
 
-```
+The cleanup is handled by:
+
+```bash
 php artisan reservations:cleanup-expired
 ```
+The command dispatches the CleanupExpiredReservationsJob, which:
 
-Responsibilities:
+- Finds pending reservations whose expires_at has passed
+- Changes their status from pending to cancelled
+- Releases their reserved seats
 
-* Cancel expired reservations
-* Release reserved seats
+## Scheduling
 
-Scheduler runs periodically to maintain system consistency.
+Laravel's scheduler is configured to run the cleanup command every minute:
+```bash
+Schedule::command('reservations:cleanup-expired')->everyMinute();
+```
+In production, an external cron service is used to trigger the cleanup because the Render free tier does not provide a native Cron Job service.
+
+The cron service periodically sends a request to the application's protected cleanup endpoint:
+```bash
+POST /api/internal/cron/cleanup-expired
+```
+
+The endpoint is protected using a secret request header and triggers the Laravel cleanup command.
+
+## Production Flow
+External Cron Service
+        ↓
+/api/internal/cron/cleanup-expired
+        ↓
+Laravel Cleanup Command
+        ↓
+CleanupExpiredReservationsJob
+        ↓
+Expired Reservations → Cancelled
+Reserved Seats → Released
+
+This ensures expired reservations are automatically cleaned up in the deployed production environment.
 
 ---
 

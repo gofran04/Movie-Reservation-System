@@ -104,6 +104,7 @@ Authorization rules ensure users can only access their own reservations and paym
 * Docker & Docker Compose
 * Nginx
 * Render
+* cron-job.org
 * Laravel Sanctum
 * Laravel Queues
 * Laravel Scheduler

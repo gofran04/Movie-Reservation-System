@@ -68,7 +68,7 @@ class ReservationPolicy
             return Response::deny('Only pending reservations can be paid.');
         }
 
-        if ($reservation->expires_at < now()) {
+        if ($reservation->isExpired()) {
             return Response::deny('Reservation expired.');
         }
 

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Database\Seeders\CinemaSeeder;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Carbon;
 use App\Jobs\CleanupExpiredReservationsJob;
 use App\Models\Reservation;
 use App\Models\Movie;
@@ -26,6 +27,68 @@ class ReservationTest extends TestCase
         ]);
 
         Gate::before(fn () => true); // Bypass authorization for testing purposes (Allow everything, skip authorization checks.to seedup the testing time)
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
+
+    public function test_reservation_with_future_expiration_is_not_expired(): void
+    {
+        Carbon::setTestNow('2026-08-16 12:00:00');
+        $reservation = new Reservation(['expires_at' => now()->addMinute()]);
+
+        $this->assertFalse($reservation->isExpired());
+    }
+
+    public function test_reservation_with_past_expiration_is_expired(): void
+    {
+        Carbon::setTestNow('2026-08-16 12:00:00');
+        $reservation = new Reservation(['expires_at' => now()->subMinute()]);
+
+        $this->assertTrue($reservation->isExpired());
+    }
+
+    public function test_reservation_at_expiration_boundary_is_expired(): void
+    {
+        Carbon::setTestNow('2026-08-16 12:00:00');
+        $reservation = new Reservation(['expires_at' => now()]);
+
+        $this->assertTrue($reservation->isExpired());
+    }
+
+    public function test_pending_non_expired_reservation_can_be_paid(): void
+    {
+        Carbon::setTestNow('2026-08-16 12:00:00');
+        $reservation = new Reservation([
+            'status' => 'pending',
+            'expires_at' => now()->addMinute(),
+        ]);
+
+        $this->assertTrue($reservation->canBePaid());
+    }
+
+    public function test_created_reservation_expires_ten_minutes_after_creation(): void
+    {
+        Carbon::setTestNow('2026-08-16 12:00:00');
+        $user = User::factory()->create();
+        $showtime = $this->createShowtime();
+
+        $this->actingAs($user);
+
+        $response = $this->postJson('/api/reservations', [
+            'showtime_id' => $showtime->id,
+            'seat_ids' => $showtime->hall->seats()->take(1)->pluck('id')->toArray(),
+        ]);
+
+        $response->assertCreated();
+
+        $reservation = Reservation::findOrFail($response->json('data.id'));
+
+        $this->assertTrue($reservation->expires_at->equalTo(now()->addMinutes(10)));
     }
 
     public function test_auth_user_can_create_reservation(): void
@@ -305,4 +368,3 @@ class ReservationTest extends TestCase
         return $showtime;
     }
 }
-

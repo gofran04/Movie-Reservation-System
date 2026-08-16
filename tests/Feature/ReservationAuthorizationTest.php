@@ -12,6 +12,7 @@ use App\Models\Movie;
 use App\Models\Showtime;
 use App\Models\Hall;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class ReservationAuthorizationTest extends TestCase
 {
@@ -25,6 +26,31 @@ class ReservationAuthorizationTest extends TestCase
             PermissionsSeeder::class,
             GeneralManagerSeeder::class,
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
+
+    public function test_payment_is_denied_at_the_exact_reservation_expiration_time(): void
+    {
+        Carbon::setTestNow('2026-08-16 12:00:00');
+        $user = User::factory()->create();
+        $user->assignRole('client');
+        $showtime = $this->createShowtime();
+        $reservation = Reservation::factory()->pending()->create([
+            'user_id' => $user->id,
+            'showtime_id' => $showtime->id,
+            'expires_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+
+        $this->postJson("/api/payments/{$reservation->id}")
+            ->assertForbidden();
     }
 
     public function test_cancelling_same_reservation_twice_is_not_allowed()

@@ -60,7 +60,7 @@ class Reservation extends Model
 
     public function isExpired(): bool
     {
-        return $this->expires_at > now();
+        return $this->expires_at <= now();
     }
 
     public function canBePaid(): bool
